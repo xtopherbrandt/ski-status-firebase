@@ -15,7 +15,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
  
     function welcome(agent) {
-        agent.add(`Welcome to my agent!`);
+        agent.add(`Welcome to Whistler Status! How can I help you?`);
+        agent.add(new Suggestion(`Check Grooming`));
+        agent.add(new Suggestion(`Check a Lift`));
     }
  
     function fallback(agent) {
@@ -29,25 +31,48 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     function checkGrooming(agent) {
     
         var scraper = new Scraper( console );
-
-        var groomingPromise = scraper.statusQuery( agent.parameters.runName );
+        var queryRunName = agent.parameters.runName;
+        var runNameTitleCase = toTitleCase( queryRunName );
+        var groomingPromise = scraper.groomingQuery( runNameTitleCase );
     
         groomingPromise.then( (grooming) => {
-            console.log( `input RunName: ${agent.parameters.runName}`);
+            console.log( `input RunName: ${runNameTitleCase}`);
             console.log( `output Grooming: ${grooming.groomedRuns}`);
             console.log(`Number of groomed runs: ${grooming.groomedRuns.length}`);
             
-            switch (grooming.groomedRuns.length) {
-                case 0 :{
-                    agent.add(`No ${agent.parameters.runName} is not groomed today.`);
+            var numberOfRuns = grooming.groomedRuns.length;
+
+            if ( runNameTitleCase ){
+
+                switch (numberOfRuns) {
+                    case 0 :{
+                        agent.add(`No ${runNameTitleCase} is not groomed today. Would you like to check another?`);
+                        break;
+                    }
+                    case 1 : {
+                        agent.add( `Yes, ${runNameTitleCase} is groomed today. Would you like to check another?`);
+
+                        break;
+                    }
+                    default : {
+                        var responseMessage = 'Yes';
+                        for( var i = 0; i < numberOfRuns; i++ ){
+                            if ( i == numberOfRuns - 1 ){
+                                responseMessage += ` and `;
+                            }
+                            else{
+                                responseMessage += `, `;
+                            }
+                            responseMessage += grooming.groomedRuns[i];
+                        }
+                        
+                        responseMessage += ' are groomed today. Would you like to check another?';
+                        agent.add( responseMessage );
+                    }
                 }
-                case 1 : {
-                    agent.add( `Yes, ${agent.parameters.runName} is groomed today.`);
-                    console.log('YES');
-                }
-                default : {
-                    agent.add(`This message is from Dialogflow's Cloud Functions for Firebase editor!`);
-                }
+            }
+            else{
+                agent.add( `There are ${numberOfRuns} runs groomed on Whistler and Blackcomb today.`);
             }
         });
     
@@ -66,18 +91,78 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' }});
         });
     */
-        agent.setContext({ name: 'grooming', lifespan: 2, parameters: { runName: `${agent.parameters.runName}` }});
+        agent.setContext({ name: 'grooming', lifespan: 2, parameters: { runName: `${runNameTitleCase}` }});
         return groomingPromise;
     }
 
-  // Uncomment and edit to make your own Google Assistant intent handler
-  // uncomment `intentMap.set('your intent name here', googleAssistantHandler);`
-  // below to get this function to be run when a Dialogflow intent is matched
-  function test(agent) {
-    let conv = agent.conv(); // Get Actions on Google library conv instance
-    conv.ask('Hello from the Actions on Google client library!') // Use Actions on Google library
-    agent.add(conv); // Add Actions on Google library responses to your agent's response
-  }
+    // // Uncomment and edit to make your own intent handler
+    // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
+    // // below to get this function to be run when a Dialogflow intent is matched
+    function checkLift(agent) {
+    
+        var scraper = new Scraper( console );
+        var queryLiftName = agent.parameters.liftName;
+        var liftNameTitleCase = toTitleCase( queryLiftName );
+        var liftPromise = scraper.liftQuery( liftNameTitleCase );
+    
+        liftPromise.then( (mountainLifts) => {
+            console.log( `input Lift Name: ${liftNameTitleCase}`);
+            console.log( `output Mountain Lifts: ${JSON.stringify(mountainLifts)}`);
+            console.log( `Number of mountains: ${mountainLifts.length}`);
+            
+            var lifts = getLiftsFromMountain( mountainLifts );
+
+            console.log( `output Lifts: ${JSON.stringify(lifts)}`);
+
+            var numberOfLifts = lifts.length;
+
+            if ( liftNameTitleCase ){
+
+                switch (numberOfLifts) {
+                    case 0 :{
+                        agent.add(`Sorry, I could find a lift named ${liftNameTitleCase}. Would you like to check another?`);
+                        break;
+                    }
+                    case 1 : {
+                        agent.add( `${liftNameTitleCase} is ${lifts[0].status}. Would you like to check another?`);
+                        break;
+                    }
+                    default : {
+                        var responseMessage = '';
+                        for( var i = 0; i < numberOfLifts; i++ ){
+                            
+                            if ( i == numberOfLifts - 1 ){
+                                responseMessage += ` and `;
+                            }
+                            else{
+                                responseMessage += `, `;
+                            }
+                            responseMessage += `${lifts[i].name} is ${lifts[i].status}`;
+                        }
+                        
+                        responseMessage += ' right now. Would you like to check another?';
+                        agent.add( responseMessage );
+                    }
+                }
+            }
+            else{
+                agent.add( `There are ${numberOfLifts} lifts open on Whistler and Blackcomb right now.`);
+            }
+        });
+
+        agent.setContext({ name: 'CheckaLift-followup', lifespan: 2 });
+        return liftPromise;
+    }
+
+    function getLiftsFromMountain( mountains ){
+        for ( var i = 0; i < mountains.length; i++){
+            if ( mountains[i].length > 0 ){
+                return mountains[i];
+            }
+        }
+        return [];
+    }
+    
   // See https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/samples/actions-on-google
   // for a complete Dialogflow fulfillment library Actions on Google client library v2 integration sample
 
@@ -85,7 +170,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   let intentMap = new Map();
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
-  // intentMap.set('your intent name here', yourFunctionHandler);
-  intentMap.set('is this run groomed', checkGrooming);
+
+  intentMap.set('Check Grooming', checkGrooming);
+  intentMap.set('Check Another Run', checkGrooming);
+  intentMap.set('Check a Lift', checkLift);
+  intentMap.set('Check Another Lift', checkLift);
   agent.handleRequest(intentMap);
 });
+
+function toTitleCase(str) {
+    return str.replace(
+        /\w\S*/g,
+        function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    );
+}

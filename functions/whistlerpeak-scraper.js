@@ -7,26 +7,33 @@ const { JSDOM } = jsdom;
 
 module.exports = class WhistlerPeakScraper {
     constructor ( console ){
-        this.url = 'http://www.whistlerpeak.com/block-grooming.php';
+        this.urlBase = 'http://www.whistlerpeak.com';
         this.console = console;
     }
     
-    statusQuery( runName ){
+    queryPromiseError( error ){
+        this.console.log( "There was an error getting the requested status" );
+        this.console.log( error );
+    }
 
-        var getUri = `${this.url}`;
+    //Grooming
+
+    groomingQuery( runName ){
+
+        var getUri = `${this.urlBase}/block-grooming.php`;
 
         var jsDompromise = JSDOM.fromURL( getUri);
 
-        jsDompromise.then( dom => this.queryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
+        jsDompromise.then( dom => this.groomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
 
         return new Promise((resolve, reject) => {this.resolve = resolve; this.reject = reject;} );
 
     }
 
-    queryPromiseFulfilled( dom, runName ) { 
+    groomingQueryPromiseFulfilled( dom, runName ) { 
         try{
             const { window } = dom.window;
-            const $ = require( 'jQuery' )(window);
+            const $ = require( 'jquery' )(window);
             var grooming = {};
             grooming.searchedName = runName;
 
@@ -40,10 +47,6 @@ module.exports = class WhistlerPeakScraper {
         }
     }
 
-    queryPromiseError( error ){
-        this.console.log( "There was an error getting grooming status" );
-        this.console.log( error );
-    }
 
     getRunGroomingStatus( $, requestedRun ){
         var runs = $(`[data-alert]:contains('${requestedRun}')`);
@@ -54,6 +57,91 @@ module.exports = class WhistlerPeakScraper {
         })
             
         return foundRuns;
+    }
+
+    //Lifts
+
+    liftQuery( liftName ){
+        var whistlerQueryPromise = this.whistlerLiftQuery( liftName );
+        var blackcombQueryPromise = this.blackcombLiftQuery( liftName );
+
+        return Promise.all( [whistlerQueryPromise, blackcombQueryPromise] );
+    }
+
+    whistlerLiftQuery( liftName ){
+
+        var getUri = `${this.urlBase}/block-lift-status-whistler-2019.php`;
+
+        var jsDompromise = JSDOM.fromURL( getUri);
+
+        return jsDompromise.then( dom => this.liftQueryPromiseFulfilled( dom, liftName ), error => this.queryPromiseError( error ) );
+
+    }
+
+    blackcombLiftQuery( liftName ){
+        var getUri = `${this.urlBase}/block-lift-status-blackcomb-2019.php`;
+        
+        var jsDompromise = JSDOM.fromURL( getUri);
+
+        return jsDompromise.then( dom => this.liftQueryPromiseFulfilled( dom, liftName ), error => this.queryPromiseError( error ) );
+
+    }
+
+    liftQueryPromiseFulfilled( dom, liftName ) { 
+        try{
+            const { window } = dom.window;
+            const $ = require( 'jquery' )(window);
+            var lifts = {};
+            lifts.searchedName = liftName;
+
+            lifts = this.getLiftStatus( $, liftName );
+            //lifts.lastUpdated = this.getLiftsLastUpdatedTime( $ );
+            console.log( lifts );
+            
+            return lifts
+        }
+        catch( e ){
+            
+            throw e;
+        }
+    }
+
+
+    getLiftStatus( $, requestedLift ){
+        var escapedLiftName = this.escapeApostrophes( requestedLift );
+        console.log( escapedLiftName );
+        var lifts = $(`[data-alert]:contains('${escapedLiftName}')`);
+        console.log( lifts[0] );
+        var foundLifts = [];
+
+        lifts.each( function(index) {
+            var text = $(this).text();
+
+            var liftName = text.match(/^([\w\s]+)(?=Open|Closed|Standby)/g);
+            var liftStatus = text.match(/(Open|Closed|Standby)/);
+        
+            var liftInfo = { 
+                "name" : liftName[0],
+                "status" : WhistlerPeakScraper.normalizeLiftStatus( liftStatus[0] ) };
+
+            foundLifts.push( liftInfo );
+        })
+            
+        return foundLifts;
+    }
+
+    escapeApostrophes( name ){
+        return name.replace( "'", "\\'" );
+    }
+    static normalizeLiftStatus(status){
+        switch (status){
+            case 'Open':
+                return status;
+            case 'Closed':
+                return status;
+            case 'Standby':
+                return 'on Standby'
+        }
     }
 
     getGrape( $ ){

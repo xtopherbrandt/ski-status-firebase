@@ -102,11 +102,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     
         var scraper = new Scraper( console );
         var queryLiftName = agent.parameters.liftName;
-        var liftNameTitleCase = toTitleCase( queryLiftName );
-        var liftPromise = scraper.liftQuery( liftNameTitleCase );
+        var liftPromise = scraper.liftQuery( queryLiftName );
     
         liftPromise.then( (mountainLifts) => {
-            console.log( `input Lift Name: ${liftNameTitleCase}`);
+            console.log( `input Lift Name: ${queryLiftName}`);
             console.log( `output Mountain Lifts: ${JSON.stringify(mountainLifts)}`);
             console.log( `Number of mountains: ${mountainLifts.length}`);
             
@@ -116,15 +115,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
             var numberOfLifts = lifts.length;
 
-            if ( liftNameTitleCase ){
+            if ( queryLiftName ){
 
                 switch (numberOfLifts) {
                     case 0 :{
-                        agent.add(`Sorry, I could find a lift named ${liftNameTitleCase}. Would you like to check another?`);
+                        agent.add(`Sorry, I could find a lift named ${queryLiftName}. Would you like to check another?`);
                         break;
                     }
                     case 1 : {
-                        agent.add( `${liftNameTitleCase} is ${lifts[0].status}. Would you like to check another?`);
+                        agent.add( `${queryLiftName} is ${lifts[0].status}. Would you like to check another?`);
                         break;
                     }
                     default : {

@@ -117,7 +117,7 @@ module.exports = class WhistlerPeakScraper {
         lifts.each( function(index) {
             var text = $(this).text();
 
-            var liftName = text.match(/^([\w\s']+)(?=Open|Closed|Standby)/g);
+            var liftName = text.match(/^([\w\s'-]+)(?=Open|Closed|Standby)/g);
             var liftStatus = text.match(/(Open|Closed|Standby)/);
             
             if ( liftName ){

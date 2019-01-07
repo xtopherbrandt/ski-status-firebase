@@ -119,7 +119,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
                 switch (numberOfLifts) {
                     case 0 :{
-                        agent.add(`Sorry, I could find a lift named ${queryLiftName}. Would you like to check another?`);
+                        agent.add(`Sorry, I could not find a lift named ${queryLiftName}. Would you like to check another?`);
                         break;
                     }
                     case 1 : {

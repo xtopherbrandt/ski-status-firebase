@@ -117,14 +117,17 @@ module.exports = class WhistlerPeakScraper {
         lifts.each( function(index) {
             var text = $(this).text();
 
-            var liftName = text.match(/^([\w\s]+)(?=Open|Closed|Standby)/g);
+            var liftName = text.match(/^([\w\s']+)(?=Open|Closed|Standby)/g);
             var liftStatus = text.match(/(Open|Closed|Standby)/);
-        
-            var liftInfo = { 
-                "name" : liftName[0],
-                "status" : WhistlerPeakScraper.normalizeLiftStatus( liftStatus[0] ) };
-
-            foundLifts.push( liftInfo );
+            
+            if ( liftName ){
+                var liftInfo = { 
+                    "name" : liftName[0],
+                    "status" : WhistlerPeakScraper.normalizeLiftStatus( liftStatus[0] ) };
+                    
+                foundLifts.push( liftInfo );
+            }
+ 
         })
             
         return foundLifts;

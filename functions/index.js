@@ -4,7 +4,7 @@
  
 const functions = require('firebase-functions');
 const {WebhookClient} = require('dialogflow-fulfillment');
-const {Card, Suggestion} = require('dialogflow-fulfillment');
+const {Card, Suggestion, UpdatePermission} = require('dialogflow-fulfillment');
 const Scraper = require( './whistlerpeak-scraper.js' );
  
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
@@ -161,7 +161,28 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         }
         return [];
     }
+
+    function notifyOnLiftStatus( agent ){
+        console.log( 'Notify When A Lift Status Changes');
+    }
     
+    function setupNotification( agent ){
+        console.log( 'Setup Push Notifications' );
+        agent.ask(new UpdatePermission({intent: 'Check a Lift'}));
+    }
+
+    function finishNotificationSetup( agent ){
+        console.log('Finish Push Setup');
+
+        if (agent.arguments.get('PERMISSION')) {
+          const userID = agent.arguments.get('UPDATES_USER_ID');
+          // code to save intent and userID in your db
+          agent.close(`Ok, I'll start alerting you.`);
+        } else {
+          agent.close(`Ok, I won't alert you.`);
+        }
+    }
+
   // See https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/samples/actions-on-google
   // for a complete Dialogflow fulfillment library Actions on Google client library v2 integration sample
 
@@ -174,6 +195,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   intentMap.set('Check Another Run', checkGrooming);
   intentMap.set('Check a Lift', checkLift);
   intentMap.set('Check Another Lift', checkLift);
+  intentMap.set('Notify When A Lift Status Changes', notifyOnLiftStatus );
+  intentMap.set('Setup Push Notifications', setupNotification );
+  intentMap.set('Finish Push Setup', finishNotificationSetup );
   agent.handleRequest(intentMap);
 });
 

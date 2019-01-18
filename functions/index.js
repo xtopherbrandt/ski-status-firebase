@@ -3,203 +3,215 @@
 'use strict';
  
 const functions = require('firebase-functions');
-const {WebhookClient} = require('dialogflow-fulfillment');
-const {Card, Suggestion, UpdatePermission} = require('dialogflow-fulfillment');
+const { dialogflow, Image, UpdatePermission, SimpleResponse, Suggestions } = require('actions-on-google')
 const Scraper = require( './whistlerpeak-scraper.js' );
- 
+const Parser = require( './epicmix-parser.js' );
+
+const {google} = require('googleapis');
+const request = require('request');
+const PATH_TO_KEY = '../Whistler Status-81ad35ac7976.json'; // <--- Do not put this key into Git Hub, it is a private key
+const key = require(PATH_TO_KEY);
+
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
- 
-exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
-    const agent = new WebhookClient({ request, response });
-    console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
-    console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
- 
-    function welcome(agent) {
-        agent.add(`Welcome to Whistler Status! How can I help you?`);
-        agent.add(new Suggestion(`Check Grooming`));
-        agent.add(new Suggestion(`Check a Lift`));
-    }
- 
-    function fallback(agent) {
-        agent.add(`I didn't understand`);
-        agent.add(`I'm sorry, can you try again?`);
-    }
 
-    // // Uncomment and edit to make your own intent handler
-    // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
-    // // below to get this function to be run when a Dialogflow intent is matched
-    function checkGrooming(agent) {
+const app = dialogflow({debug: true});
+
+app.intent('Default Welcome Intent', welcome );
+app.intent('Default Fallback Intent', fallback );
+
+app.intent('Check Grooming', checkGrooming );
+app.intent('Check Another Run', checkGrooming );
+app.intent('Check a Lift', checkLift );
+app.intent('Check Another Lift', checkLift );
+app.intent('Notify When A Lift Status Changes', notifyOnLiftStatus );
+app.intent('Setup Push Notifications', setupNotification );
+app.intent('Finish Push Setup', finishNotificationSetup );
+
+const welcomeSuggestions = [
+    'Check Grooming',
+    'Check a Lift'
+]
+
+function welcome(conv) {
+    conv.ask(new SimpleResponse({
+        speech: 'Welcome to Whistler Status! How can I help you?',
+        text: 'Welcome to Whistler Status! How can I help you?',
+    }));
     
-        var scraper = new Scraper( console );
-        var queryRunName = agent.parameters.runName;
-        var runNameTitleCase = toTitleCase( queryRunName );
-        var groomingPromise = scraper.groomingQuery( runNameTitleCase );
+    conv.ask(new Suggestions(welcomeSuggestions));
+}
+
+function fallback(conv) {
+    conv.ask(new SimpleResponse({
+        speech: `Sorry, I didn't understand. Please try again.`,
+        text: `Sorry, I didn't understand.`,
+    }));
     
-        groomingPromise.then( (grooming) => {
-            console.log( `input RunName: ${runNameTitleCase}`);
-            console.log( `output Grooming: ${grooming.groomedRuns}`);
-            console.log(`Number of groomed runs: ${grooming.groomedRuns.length}`);
-            
-            var numberOfRuns = grooming.groomedRuns.length;
+    conv.ask(new Suggestions(welcomeSuggestions));
+}
 
-            if ( runNameTitleCase ){
+function checkGrooming( conv ){
 
-                switch (numberOfRuns) {
-                    case 0 :{
-                        agent.add(`No ${runNameTitleCase} is not groomed today. Would you like to check another?`);
-                        break;
-                    }
-                    case 1 : {
-                        agent.add( `Yes, ${runNameTitleCase} is groomed today. Would you like to check another?`);
+    var inputRunName = getInputRunNameInTitleCase( conv );
 
-                        break;
-                    }
-                    default : {
-                        var responseMessage = 'Yes';
-                        for( var i = 0; i < numberOfRuns; i++ ){
-                            if ( i == numberOfRuns - 1 ){
-                                responseMessage += ` and `;
-                            }
-                            else{
-                                responseMessage += `, `;
-                            }
-                            responseMessage += grooming.groomedRuns[i];
-                        }
-                        
-                        responseMessage += ' are groomed today. Would you like to check another?';
-                        agent.add( responseMessage );
-                    }
-                }
-            }
-            else{
-                agent.add( `There are ${numberOfRuns} runs groomed on Whistler and Blackcomb today.`);
-            }
-        });
-    
+    return getGroomingPromise( inputRunName ).then( (grooming) => {
         
-    /**        
-            agent.add(new Card({
-                title: `Title: this is a card title`,
-                imageUrl: 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
-                text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
-                buttonText: 'This is a button',
-                buttonUrl: 'https://assistant.google.com/'
-            })
-            );
-            agent.add(new Suggestion(`Quick Reply`));
-            agent.add(new Suggestion(`Suggestion`));
-            agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' }});
-        });
-    */
-        agent.setContext({ name: 'grooming', lifespan: 2, parameters: { runName: `${runNameTitleCase}` }});
-        return groomingPromise;
+        conv.ask( groomingResponse( inputRunName, grooming) ); 
+        conv.contexts.set( 'grooming', 2 );
+    }); 
+}
+
+function getGroomingPromise( queryRunName ) {
+
+    var scraper = new Scraper( console );
+    
+    var groomingPromise = scraper.groomingQuery( queryRunName );
+
+    return groomingPromise;
+}
+
+function getInputRunNameInTitleCase( conv ){
+    return toTitleCase( conv.parameters.runName );
+}
+
+function groomingResponse( inputRunName, grooming ){
+    
+    var numberOfRuns = getNumberOfGroomedRuns( grooming );
+    var responseMessage;
+
+    console.log( `output Grooming: ${grooming.groomedRuns}`);
+    console.log(`Number of groomed runs: ${numberOfRuns}`);
+
+    if ( inputRunName ){
+
+        responseMessage = selectGroomingResponse( inputRunName, grooming );
+    }
+    else{
+        responseMessage = `There are ${numberOfRuns} runs groomed on Whistler and Blackcomb today. `;
     }
 
-    // // Uncomment and edit to make your own intent handler
-    // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
-    // // below to get this function to be run when a Dialogflow intent is matched
-    function checkLift(agent) {
-    
-        var scraper = new Scraper( console );
-        var queryLiftName = agent.parameters.liftName;
-        var liftPromise = scraper.liftQuery( queryLiftName );
-    
-        liftPromise.then( (mountainLifts) => {
-            console.log( `input Lift Name: ${queryLiftName}`);
-            console.log( `output Mountain Lifts: ${JSON.stringify(mountainLifts)}`);
-            console.log( `Number of mountains: ${mountainLifts.length}`);
-            
-            var lifts = getLiftsFromMountain( mountainLifts );
+    return new SimpleResponse({
+        speech: responseMessage,
+        text: responseMessage
+    });
+}
 
-            console.log( `output Lifts: ${JSON.stringify(lifts)}`);
+function getNumberOfGroomedRuns( grooming ){
+    return  grooming.groomedRuns.length;
+}
 
-            var numberOfLifts = lifts.length;
+function selectGroomingResponse( inputRunName, grooming ){
 
-            if ( queryLiftName ){
+    var responseMessage;
+    var numberOfRuns = getNumberOfGroomedRuns( grooming );
 
-                switch (numberOfLifts) {
-                    case 0 :{
-                        agent.add(`Sorry, I could not find a lift named ${queryLiftName}. Would you like to check another?`);
-                        break;
-                    }
-                    case 1 : {
-                        agent.add( `${queryLiftName} is ${lifts[0].status}. Would you like to check another?`);
-                        break;
-                    }
-                    default : {
-                        var responseMessage = '';
-                        for( var i = 0; i < numberOfLifts; i++ ){
-                            
-                            if ( i == numberOfLifts - 1 ){
-                                responseMessage += ` and `;
-                            }
-                            else{
-                                responseMessage += `, `;
-                            }
-                            responseMessage += `${lifts[i].name} is ${lifts[i].status}`;
-                        }
-                        
-                        responseMessage += ' right now. Would you like to check another?';
-                        agent.add( responseMessage );
-                    }
+    switch (numberOfRuns) {
+        case 0 :{
+            responseMessage = `No ${inputRunName} is not groomed today. Would you like to check another?`;
+            break;
+        }
+        case 1 : {
+            responseMessage = `Yes, ${inputRunName} is groomed today. Would you like to check another?`;
+            break;
+        }
+        default : {
+            responseMessage = 'Yes';
+            for( var i = 0; i < numberOfRuns; i++ ){
+                if ( i == numberOfRuns - 1 ){
+                    responseMessage += ` and `;
                 }
+                else{
+                    responseMessage += `, `;
+                }
+                responseMessage += grooming.groomedRuns[i];
             }
-            else{
-                agent.add( `There are ${numberOfLifts} lifts open on Whistler and Blackcomb right now.`);
-            }
-        });
-
-        agent.setContext({ name: 'CheckaLift-followup', lifespan: 2 });
-        return liftPromise;
-    }
-
-    function getLiftsFromMountain( mountains ){
-        for ( var i = 0; i < mountains.length; i++){
-            if ( mountains[i].length > 0 ){
-                return mountains[i];
-            }
+            
+            responseMessage += ' are groomed today. Would you like to check another?';
         }
-        return [];
     }
 
-    function notifyOnLiftStatus( agent ){
-        console.log( 'Notify When A Lift Status Changes');
-    }
+    return responseMessage;
+}
+
+function checkLift( conv ) {
+
+    var parser = new Parser( console );
+    var queryLiftName = conv.parameters.liftName;
+    var liftInfoPromise = parser.liftQuery( queryLiftName );
+
+    liftInfoPromise.then((liftInfo) => {
+        var responseMessage;
+        console.log( `input Lift Name: ${queryLiftName}`);
+
+        if ( liftInfo ){
+            console.log ( `lift found: ${JSON.stringify( liftInfo.Name )}` );
+
+            switch (liftInfo.LiftStatus){
+                case "Closed" : {
+                    responseMessage = `${liftInfo.Name} is Closed. Would you like to check another?`;
+                    break;
+                }
+                case "Standby" : {
+                    responseMessage = `${liftInfo.Name} is On Standby. Would you like to check another?`;
+                    break;
+                }
+                case "Open" : {
+                    responseMessage = `${liftInfo.Name} is Open. The wait time is currently ${liftInfo.WaitTimeInMinutes} minutes. Would you like to check another?`;
+                    break;
+                }
+                
+            }
+ 
+        }
+        else{
+            responseMessage = `Sorry, I could not find a lift named ${queryLiftName}. Would you like to check another?`;
+        }
+                    
+        conv.ask(new SimpleResponse({
+            speech: responseMessage,
+            text: responseMessage,
+        }));
+
+        conv.contexts.set( 'CheckaLift-followup', 2 );
+    });
     
-    function setupNotification( agent ){
-        console.log( 'Setup Push Notifications' );
-        agent.ask(new UpdatePermission({intent: 'Check a Lift'}));
-    }
+    return liftInfoPromise;
+}
 
-    function finishNotificationSetup( agent ){
-        console.log('Finish Push Setup');
+function responseWhenNoLiftNameSpecified(){
+    return `Which lift would you like to check?`;
+}
 
-        if (agent.arguments.get('PERMISSION')) {
-          const userID = agent.arguments.get('UPDATES_USER_ID');
-          // code to save intent and userID in your db
-          agent.close(`Ok, I'll start alerting you.`);
-        } else {
-          agent.close(`Ok, I won't alert you.`);
+function getLiftsFromMountain( mountains ){
+    for ( var i = 0; i < mountains.length; i++){
+        if ( mountains[i].length > 0 ){
+            return mountains[i];
         }
     }
+    return [];
+}
 
-  // See https://github.com/dialogflow/dialogflow-fulfillment-nodejs/tree/master/samples/actions-on-google
-  // for a complete Dialogflow fulfillment library Actions on Google client library v2 integration sample
+function notifyOnLiftStatus( conv ){
+    console.log( 'Notify When A Lift Status Changes');
+}
 
-  // Run the proper function handler based on the matched Dialogflow intent name
-  let intentMap = new Map();
-  intentMap.set('Default Welcome Intent', welcome);
-  intentMap.set('Default Fallback Intent', fallback);
+function setupNotification( conv ){
+    console.log( 'Setup Push Notifications' );
+    conv.ask(new UpdatePermission({intent: 'Check a Lift'}));
+}
 
-  intentMap.set('Check Grooming', checkGrooming);
-  intentMap.set('Check Another Run', checkGrooming);
-  intentMap.set('Check a Lift', checkLift);
-  intentMap.set('Check Another Lift', checkLift);
-  intentMap.set('Notify When A Lift Status Changes', notifyOnLiftStatus );
-  intentMap.set('Setup Push Notifications', setupNotification );
-  intentMap.set('Finish Push Setup', finishNotificationSetup );
-  agent.handleRequest(intentMap);
-});
+function finishNotificationSetup( conv ){
+    console.log('Finish Push Setup');
+
+    if (conv.arguments.get('PERMISSION')) {
+      const userID = conv.arguments.get('UPDATES_USER_ID');
+      // code to save intent and userID in your db
+      conv.close(`Ok, I'll start alerting you.`);
+      
+    } else {
+      conv.close(`Ok, I won't alert you.`);
+    }
+}
 
 function toTitleCase(str) {
     return str.replace(
@@ -209,3 +221,44 @@ function toTitleCase(str) {
         }
     );
 }
+
+function testNotification(){
+    var userID = 'ABwppHGKZe_sxq25BB-UesIt1AMqK8eAbMWXMUvrFm5HdjKHVKx1rr9HAjuF7fOvHSBhQEXoZq4TgT9k5tvndZKTBMos7Ra9';
+    sendNotifcation( userID, 'Check a Lift');
+}
+
+function sendNotifcation( userId, intent ){ 
+    let jwtClient = new google.auth.JWT(
+        key.client_email, null, key.private_key,
+        ['https://www.googleapis.com/auth/actions.fulfillment.conversation'],
+        null
+    );
+    
+    jwtClient.authorize((err, tokens ) => {
+    
+        // code to retrieve target userId and intent
+        let notif = {
+            userNotification: {
+            title: 'Harmony is Open',
+            },
+            target: {
+            userId: userId,
+            intent: intent,
+            // Expects a IETF BCP-47 language code (i.e. en-US)
+            locale: 'en-US'
+            },
+        };
+
+        request.post('https://actions.googleapis.com/v2/conversations:send', {
+            'auth': {
+            'bearer': tokens.access_token,
+            },
+            'json': true,
+            'body': {'customPushMessage': notif},
+        }, (err, httpResponse, body) => {
+            console.log( 'notifcation post: ' + httpResponse.statusCode + ': ' + httpResponse.statusMessage);
+        });
+    });
+}
+
+exports.fulfillment = functions.https.onRequest(app);

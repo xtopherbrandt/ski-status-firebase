@@ -1,5 +1,22 @@
-// See https://github.com/dialogflow/dialogflow-fulfillment-nodejs
-// for Dialogflow fulfillment library docs, samples, and to report issues
+/**
+Copyright (C) 2019 Christopher Brandt
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+Contact Info: xtopher.brandt at gmail
+*/
+
 'use strict';
  
 const functions = require('firebase-functions');
@@ -9,7 +26,7 @@ const Parser = require( './epicmix-parser.js' );
 
 const {google} = require('googleapis');
 const request = require('request');
-const PATH_TO_KEY = '../Whistler Status-81ad35ac7976.json'; // <--- Do not put this key into Git Hub, it is a private key
+const PATH_TO_KEY = './Whistler Status-81ad35ac7976.json'; // <--- Do not put this key into Git Hub, it is a private key
 const key = require(PATH_TO_KEY);
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
@@ -19,10 +36,12 @@ const app = dialogflow({debug: true});
 app.intent('Default Welcome Intent', welcome );
 app.intent('Default Fallback Intent', fallback );
 
-app.intent('Check Grooming', checkGrooming );
-app.intent('Check Another Run', checkGrooming );
+app.intent('Check Grooming Report', checkGrooming );
+app.intent('Check Grooming Regular Run', checkGrooming );
 app.intent('Check a Lift', checkLift );
 app.intent('Check Another Lift', checkLift );
+app.intent('Check Wait Time', checkWaitTime );
+app.intent('Check Another Wait Time', checkWaitTime );
 app.intent('Notify When A Lift Status Changes', notifyOnLiftStatus );
 app.intent('Setup Push Notifications', setupNotification );
 app.intent('Finish Push Setup', finishNotificationSetup );
@@ -52,12 +71,13 @@ function fallback(conv) {
 
 function checkGrooming( conv ){
 
-    var inputRunName = getInputRunNameInTitleCase( conv );
+    var inputRunName = getInputRunName( conv );
 
     return getGroomingPromise( inputRunName ).then( (grooming) => {
         
         conv.ask( groomingResponse( inputRunName, grooming) ); 
-        conv.contexts.set( 'grooming', 2 );
+        conv.contexts.set( 'CheckGrooming-followup', 5 );
+        conv.contexts.set( 'CheckAGladedRun-followup', 5 );
     }); 
 }
 
@@ -70,8 +90,12 @@ function getGroomingPromise( queryRunName ) {
     return groomingPromise;
 }
 
+function getInputRunName( conv ){
+    return conv.parameters.runName;
+}
+
 function getInputRunNameInTitleCase( conv ){
-    return toTitleCase( conv.parameters.runName );
+    return toTitleCase( getInputRunName( conv ) );
 }
 
 function groomingResponse( inputRunName, grooming ){
@@ -87,7 +111,7 @@ function groomingResponse( inputRunName, grooming ){
         responseMessage = selectGroomingResponse( inputRunName, grooming );
     }
     else{
-        responseMessage = `There are ${numberOfRuns} runs groomed on Whistler and Blackcomb today. `;
+        responseMessage = `Cool. Which run?`;
     }
 
     return new SimpleResponse({
@@ -111,7 +135,7 @@ function selectGroomingResponse( inputRunName, grooming ){
             break;
         }
         case 1 : {
-            responseMessage = `Yes, ${inputRunName} is groomed today. Would you like to check another?`;
+            responseMessage = `Yes, ${grooming.groomedRuns[0]} is groomed today. Would you like to check another?`;
             break;
         }
         default : {
@@ -128,6 +152,67 @@ function selectGroomingResponse( inputRunName, grooming ){
             
             responseMessage += ' are groomed today. Would you like to check another?';
         }
+    }
+
+    return responseMessage;
+}
+
+function checkWaitTime( conv ){
+
+    var queryLiftName = conv.parameters.liftName;
+
+    return getLiftInfoPromise( queryLiftName ).then( (liftInfo) => {
+        
+        conv.ask( waitTimeResponse( queryLiftName, liftInfo) ); 
+        conv.contexts.set( 'CheckWaitTime-followup', 2 );
+    }); 
+}
+
+function getLiftInfoPromise( queryLiftName ){
+
+    var parser = new Parser( console );
+    return parser.liftQuery( queryLiftName );
+
+}
+
+function waitTimeResponse( queryLiftName, liftInfo ){
+    
+    var responseMessage;
+    console.log( `input Lift Name: ${queryLiftName}`);
+
+    if ( liftInfo ){
+        console.log ( `lift found: ${JSON.stringify( liftInfo.Name )}` );
+
+        responseMessage = selectWaitTimeResponse( liftInfo );
+    }
+    else{
+        responseMessage = `Sorry, I could not find a lift named ${queryLiftName}. Would you like to check another?`;
+    }
+
+    return new SimpleResponse({
+        speech: responseMessage,
+        text: responseMessage,
+    });
+}
+
+function selectWaitTimeResponse( liftInfo ){
+
+    var responseMessage;
+
+    switch (liftInfo.LiftStatus){
+        case "Closed" : {
+            responseMessage = `${liftInfo.Name} is Closed. Would you like to check another?`;
+            break;
+        }
+        case "Hold" : {
+            responseMessage = `${liftInfo.Name} is On Standby, the wait time is currently ${liftInfo.WaitTimeInMinutes} minutes. Would you like to check another?`;
+            break;
+        }
+        case "Open" : {
+            responseMessage = `The wait time at ${liftInfo.Name} is currently ${liftInfo.WaitTimeInMinutes} minutes. Would you like to check another?`;
+            break;
+        }
+        
     }
 
     return responseMessage;
@@ -151,8 +236,8 @@ function checkLift( conv ) {
                     responseMessage = `${liftInfo.Name} is Closed. Would you like to check another?`;
                     break;
                 }
-                case "Standby" : {
-                    responseMessage = `${liftInfo.Name} is On Standby. Would you like to check another?`;
+                case "Hold" : {
+                    responseMessage = `${liftInfo.Name} is On Standby, the wait time is currently ${liftInfo.WaitTimeInMinutes} minutes. Would you like to check another?`;
                     break;
                 }
                 case "Open" : {

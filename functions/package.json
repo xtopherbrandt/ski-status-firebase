@@ -1,16 +1,16 @@
 {
-  "name": "dialogflowFirebaseFulfillment",
-  "description": "This is the default fulfillment for a Dialogflow agents using Cloud Functions for Firebase",
-  "version": "0.0.1",
+  "name": "skistatus",
+  "description": "A google assistant to check run grooming, chair lift and gondola status....",
+  "version": "1.0.1",
   "private": true,
-  "license": "Apache Version 2.0",
-  "author": "Google Inc.",
+  "license": "GPL-3.0-or-later",
+  "author": "Christopher Brandt",
   "engines": {
     "node": "8"
   },
   "scripts": {
-    "start": "firebase serve --only functions:dialogflowFirebaseFulfillment",
-    "deploy": "firebase deploy --only functions:dialogflowFirebaseFulfillment"
+    "start": "firebase serve --only functions:fulfillment",
+    "deploy": "firebase deploy --only functions:fulfillment"
   },
   "dependencies": {
     "actions-on-google": "^2.2.0",

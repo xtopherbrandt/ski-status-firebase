@@ -20,9 +20,11 @@ Contact Info: xtopher.brandt at gmail
 'use strict';
  
 const functions = require('firebase-functions');
-const { dialogflow, Image, UpdatePermission, SimpleResponse, Suggestions } = require('actions-on-google')
+const { dialogflow, Image, UpdatePermission, SimpleResponse, Suggestions, List } = require('actions-on-google')
 const Scraper = require( './whistlerpeak-scraper.js' );
 const Parser = require( './epicmix-parser.js' );
+const moment = require( 'moment' );
+const Lifts = require( './lifts.js');
 
 const {google} = require('googleapis');
 const request = require('request');
@@ -32,6 +34,9 @@ const key = require(PATH_TO_KEY);
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
 const app = dialogflow({debug: true});
+
+const admin = require('firebase-admin');
+
 
 app.intent('Default Welcome Intent', welcome );
 app.intent('Default Fallback Intent', fallback );
@@ -45,23 +50,40 @@ app.intent('Setup Push Notifications', setupNotification );
 app.intent('Finish Push Setup', finishNotificationSetup );
 
 const welcomeSuggestions = [
-    'Check Grooming',
-    'Check a Lift'
+    'Run Grooming',
+    'Lift Wait Times'
 ]
 
 function welcome(conv) {
+
+    var dayPartName = getDayPartName();
+
     conv.ask(new SimpleResponse({
-        speech: 'Welcome to Whistler Status! How can I help you?',
-        text: 'Welcome to Whistler Status! How can I help you?',
+        speech: `Good ${dayPartName} from Whistler! How can I help you?`,
+        text: `Good ${dayPartName} from Whistler! How can I help you?`,
     }));
     
     conv.ask(new Suggestions(welcomeSuggestions));
 }
 
+function getDayPartName(){
+    var hour = moment().utcOffset(-8, false ).hour();
+
+    if ( hour > 2 && hour < 12 ) {
+        return 'morning';
+    }
+    if ( hour >= 12 && hour < 18 ){
+        return 'afternoon';
+    }
+    if ( hour >= 18 || hour <= 2 ){
+        return 'evening'
+    }
+}
+
 function fallback(conv) {
     conv.ask(new SimpleResponse({
-        speech: `Sorry, I didn't understand. Please try again.`,
-        text: `Sorry, I didn't understand.`,
+        speech: `Sorry, I didn't catch that. You can ask questions like, 'Is Whiskey Jack groomed?' or 'What's the wait time at Harmony'. Or just say a run or lift name and I'll tell you it's status.`,
+        text: `Sorry, I don't quite understand. You can ask questions like, 'Is Whiskey Jack groomed?' or 'What's the wait time at Harmony'. Or just say a run or lift name and I'll tell you it's status.`,
     }));
     
     conv.ask(new Suggestions(welcomeSuggestions));
@@ -71,12 +93,29 @@ function checkGrooming( conv ){
 
     var inputRunName = getInputRunName( conv );
 
-    return getGroomingPromise( inputRunName ).then( (grooming) => {
+    if ( inputRunName ){
+        return getGroomingPromise( inputRunName ).then( (grooming) => {
+            
+            conv.ask( groomingResponse( inputRunName, grooming) ); 
+            
+            exampleRunSuggestions( conv );
+
+            conv.contexts.set( 'CheckGrooming-followup', 5 );
+            conv.contexts.set( 'CheckAGladedRun-followup', 5 );
+            conv.contexts.set( 'CheckGroomingDoubleBlackRun-followup', 5 );
+            conv.contexts.set( 'CheckGroomingNeverGroomedRun-followup', 5 );
+        }); 
+    }
+    else{
         
-        conv.ask( groomingResponse( inputRunName, grooming) ); 
-        conv.contexts.set( 'CheckGrooming-followup', 5 );
-        conv.contexts.set( 'CheckAGladedRun-followup', 5 );
-    }); 
+        conv.ask(new SimpleResponse({
+            speech: `Alright. Which Run?`,
+            text: `Alright. Which Run?`,
+        }));
+
+        exampleRunSuggestions( conv );
+    }
+
 }
 
 function getGroomingPromise( queryRunName ) {
@@ -155,15 +194,72 @@ function selectGroomingResponse( inputRunName, grooming ){
     return responseMessage;
 }
 
+function exampleRunSuggestions( conv ){
+
+    var runExamples = ['Dave Murray', 'Cruiser', 'Unsanctioned'];
+    conv.ask( new Suggestions( runExamples ) );
+    conv.contexts.set( 'CheckGrooming-followup', 5 );
+    conv.contexts.set( 'CheckAGladedRun-followup', 5 );
+    conv.contexts.set( 'CheckGroomingDoubleBlackRun-followup', 5 );
+    conv.contexts.set( 'CheckGroomingNeverGroomedRun-followup', 5 );
+}
+
 function checkWaitTime( conv ){
 
     var queryLiftName = conv.parameters.liftName;
 
-    return getLiftInfoPromise( queryLiftName ).then( (liftInfo) => {
+    if ( queryLiftName ){
+        return getLiftInfoPromise( queryLiftName ).then( (liftInfo) => {
+            
+            conv.ask( waitTimeResponse( queryLiftName, liftInfo) ); 
+            exampleLiftSuggestions( conv );
+            conv.contexts.set( 'CheckWaitTime-followup', 2 );
+        }); 
+    }
+    else {
         
-        conv.ask( waitTimeResponse( queryLiftName, liftInfo) ); 
+        conv.ask(new SimpleResponse({
+            speech: `Cool. Which Lift?`,
+            text: `Cool. Which Lift?`,
+        }));
+
         conv.contexts.set( 'CheckWaitTime-followup', 2 );
-    }); 
+
+        exampleLiftSuggestions( conv );
+/**        
+        var lifts = new Lifts();
+
+        // Create a list
+        conv.ask(new List({
+            title: 'Whistler Blackcomb Lifts',
+            items: {
+            // Add the first item to the list
+            "Whistler Village Gondola Lower": {
+                synonyms: [
+                "Whistler Village Gondola Lower"
+                ],
+                title: "Whistler Village Gondola Lower"
+
+                },
+            "Whistler Village Gondola Upper": {
+                synonyms: [
+                "Whistler Village Gondola Upper"
+                ],
+                title: "Whistler Village Gondola Upper"
+
+                }
+            }
+        }));
+*/
+    }
+
+}
+
+function exampleLiftSuggestions( conv ){
+
+    var liftExamples = ['Creekside', 'Village Gondola', 'Wizlar'];
+    conv.ask( new Suggestions( liftExamples ) );
+    
 }
 
 function getLiftInfoPromise( queryLiftName ){
@@ -196,6 +292,7 @@ function waitTimeResponse( queryLiftName, liftInfo ){
 function selectWaitTimeResponse( liftInfo ){
 
     var responseMessage;
+    var liftName = liftInfo.Name;
 
     switch (liftInfo.LiftStatus){
         case "Closed" : {
@@ -203,7 +300,8 @@ function selectWaitTimeResponse( liftInfo ){
             break;
         }
         case "Hold" : {
-            responseMessage = `${liftInfo.Name} is On Standby, the wait time is currently ${liftInfo.WaitTimeInMinutes} minutes. Would you like to check another?`;
+            var waitTimeText = getTextForStandbyLiftWait( liftInfo.WaitTimeInMinutes, liftName );
+            responseMessage = `${liftInfo.Name} is On Standby. ${waitTimeText} Would you like to check another?`;
             break;
         }
         case "Open" : {
@@ -220,6 +318,19 @@ function checkLift( conv ) {
 
     var parser = new Parser( console );
     var queryLiftName = conv.parameters.liftName;
+
+    if ( !queryLiftName ){
+        
+        conv.ask(new SimpleResponse({
+            speech: `Excellent. Which Lift?`,
+            text: `Excellent. Which Lift?`,
+        }));
+
+        exampleLiftSuggestions( conv );
+        conv.contexts.set( 'CheckaLift-followup', 2 );
+        return;
+    }
+
     var liftInfoPromise = parser.liftQuery( queryLiftName );
 
     liftInfoPromise.then((liftInfo) => {
@@ -227,19 +338,23 @@ function checkLift( conv ) {
         console.log( `input Lift Name: ${queryLiftName}`);
 
         if ( liftInfo ){
-            console.log ( `lift found: ${JSON.stringify( liftInfo.Name )}` );
+
+            var liftName = liftInfo.Name;
+            console.log ( `lift found: ${ liftName }` );
 
             switch (liftInfo.LiftStatus){
                 case "Closed" : {
-                    responseMessage = `${liftInfo.Name} is Closed. Would you like to check another?`;
+                    responseMessage = `${liftName} is Closed. Would you like to check another?`;
                     break;
                 }
                 case "Hold" : {
-                    responseMessage = `${liftInfo.Name} is On Standby, the wait time is currently ${liftInfo.WaitTimeInMinutes} minutes. Would you like to check another?`;
+                    var waitTimeText = getTextForStandbyLiftWait( liftInfo.WaitTimeInMinutes, liftName );
+                    responseMessage = `${ waitTimeText } Would you like to check another?`;
                     break;
                 }
                 case "Open" : {
-                    responseMessage = `${liftInfo.Name} is Open. The wait time is currently ${liftInfo.WaitTimeInMinutes} minutes. Would you like to check another?`;
+                    var waitTimeText = getTextForOpenLiftWait( liftInfo.WaitTimeInMinutes, liftName );
+                    responseMessage = `${ waitTimeText } Would you like to check another?`;
                     break;
                 }
                 
@@ -255,10 +370,74 @@ function checkLift( conv ) {
             text: responseMessage,
         }));
 
+        exampleLiftSuggestions( conv );
         conv.contexts.set( 'CheckaLift-followup', 2 );
     });
     
     return liftInfoPromise;
+}
+
+function getTextForStandbyLiftWait( waitTimeInMinutes, liftName ){
+    var responseText;
+
+    if ( waitTimeInMinutes == 0 ){
+            responseText = `${liftName} is Standby, but there is currently no line (or the lift isn't telling me something).`;
+    }
+    else if ( waitTimeInMinutes == 1 ){
+        responseText = `${liftName} is on Standby, but there's only a 1 minute wait.`;
+    }
+    else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 5 ){
+        responseText = `There is only a ${liftInfo.WaitTimeInMinutes} minute wait at ${liftName}. But it is on Stand-by.`
+    }
+    else if ( waitTimeInMinutes >= 5 && waitTimeInMinutes < 20 ){
+        responseText = `Man, ${liftName} is on Standby, and it already has a ${liftInfo.WaitTimeInMinutes} minute wait.`
+    }
+    else{
+        responseText = `There is a ${waitTimeInMinutes} minute wait at ${liftName}. And it's still on Stand-by. That's crazy!`
+    }
+
+    return responseText;
+}
+
+function getTextForOpenLiftWait( waitTimeInMinutes, liftName ){
+    var responseText;
+
+    if ( waitTimeInMinutes == 0 ){
+            responseText = `There is currently no line at ${liftName} (or the lift isn't telling me something).`;
+    }
+    else if ( waitTimeInMinutes == 1 ){
+        responseText = `There's only a 1 minute wait at ${liftName}.`;
+    }
+    else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 5 ){
+        responseText = `There is only a ${liftInfo.WaitTimeInMinutes} minute wait at ${liftName}.`
+    }
+    else if ( waitTimeInMinutes >= 5 && waitTimeInMinutes < 20 ){
+        responseText = `${liftName} currently has a ${liftInfo.WaitTimeInMinutes} minute wait.`
+    }
+    else{
+        responseText = `The wait at ${liftName} is ${waitTimeInMinutes} minutes. It is running, just busy!`
+    }
+
+    return responseText;
+}
+
+function getWaitTimeTextForCheckLiftStatus( waitTimeInMinutes ){
+    var responseText;
+
+    if ( waitTimeInMinutes == 0 ){
+            responseText = `There is currently no wait! Or the lift isn't telling me something.`;
+    }
+    else if ( waitTimeInMinutes == 1 ){
+        responseText = `There's only a 1 minute wait. Awesome`;
+    }
+    else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 20 ){
+        responseText = `The wait is currently ${waitTimeInMinutes} minutes.`
+    }
+    else{
+        responseText = `The wait right now is ${waitTimeInMinutes} minutes. That sucks!`
+    }
+
+    return responseText;
 }
 
 function responseWhenNoLiftNameSpecified(){
@@ -287,10 +466,17 @@ function finishNotificationSetup( conv ){
     console.log('Finish Push Setup');
 
     if (conv.arguments.get('PERMISSION')) {
-      const userID = conv.arguments.get('UPDATES_USER_ID');
-      // code to save intent and userID in your db
-      conv.close(`Ok, I'll start alerting you.`);
-      
+        const userID = conv.arguments.get('UPDATES_USER_ID');
+        // code to save intent and userID in your db
+        conv.close(`Ok, I'll start alerting you.`);
+
+        admin.initializeApp(functions.config().firebase);
+
+        var db = admin.firestore();
+        var userReference = db.collection('users').doc(userID).set({'notify' : true});
+        var anyLiftReference = db.collection('notifications').doc('anyLiftUsers').set(userReference);
+
+
     } else {
       conv.close(`Ok, I won't alert you.`);
     }

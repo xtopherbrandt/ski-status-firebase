@@ -296,16 +296,23 @@ function selectWaitTimeResponse( liftInfo ){
 
     switch (liftInfo.LiftStatus){
         case "Closed" : {
-            responseMessage = `${liftInfo.Name} is Closed. Would you like to check another?`;
+            if (liftInfo.WaitTimeInMinutes > 0 ){
+                responseMessage = `${liftInfo.Name} is Closed, and there's already a ${liftInfo.WaitTimeInMinutes} minute wait. Would you like to check another?`;
+            }
+            else{
+                responseMessage = `${liftInfo.Name} is Closed. Would you like to check another?`;
+            }
+            
             break;
         }
         case "Hold" : {
             var waitTimeText = getTextForStandbyLiftWait( liftInfo.WaitTimeInMinutes, liftName );
-            responseMessage = `${liftInfo.Name} is On Standby. ${waitTimeText} Would you like to check another?`;
+            responseMessage = `${waitTimeText} Would you like to check another?`;
             break;
         }
         case "Open" : {
-            responseMessage = `The wait time at ${liftInfo.Name} is currently ${liftInfo.WaitTimeInMinutes} minutes. Would you like to check another?`;
+            var waitTimeText = getTextForOpenLiftWait( liftInfo.WaitTimeInMinutes, liftName );
+            responseMessage = `${ waitTimeText } Would you like to check another?`;
             break;
         }
         
@@ -348,12 +355,12 @@ function checkLift( conv ) {
                     break;
                 }
                 case "Hold" : {
-                    var waitTimeText = getTextForStandbyLiftWait( liftInfo.WaitTimeInMinutes, liftName );
+                    var waitTimeText = getTextForStandbyLiftCheck( liftInfo.WaitTimeInMinutes, liftName );
                     responseMessage = `${ waitTimeText } Would you like to check another?`;
                     break;
                 }
                 case "Open" : {
-                    var waitTimeText = getTextForOpenLiftWait( liftInfo.WaitTimeInMinutes, liftName );
+                    var waitTimeText = getTextForOpenLiftCheck( liftInfo.WaitTimeInMinutes, liftName );
                     responseMessage = `${ waitTimeText } Would you like to check another?`;
                     break;
                 }
@@ -381,16 +388,16 @@ function getTextForStandbyLiftWait( waitTimeInMinutes, liftName ){
     var responseText;
 
     if ( waitTimeInMinutes == 0 ){
-            responseText = `${liftName} is Standby, but there is currently no line (or the lift isn't telling me something).`;
+            responseText = `${liftName} is Stand-by, but there is currently no line (or the lift isn't telling me something).`;
     }
     else if ( waitTimeInMinutes == 1 ){
-        responseText = `${liftName} is on Standby, but there's only a 1 minute wait.`;
+        responseText = `${liftName} is on Stand-by, but there's only a 1 minute wait.`;
     }
     else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 5 ){
-        responseText = `There is only a ${liftInfo.WaitTimeInMinutes} minute wait at ${liftName}. But it is on Stand-by.`
+        responseText = `There is only a ${waitTimeInMinutes} minute wait at ${liftName}. But it is on Stand-by.`
     }
     else if ( waitTimeInMinutes >= 5 && waitTimeInMinutes < 20 ){
-        responseText = `Man, ${liftName} is on Standby, and it already has a ${liftInfo.WaitTimeInMinutes} minute wait.`
+        responseText = `Man, ${liftName} is on Stand-by, and it already has a ${waitTimeInMinutes} minute wait.`
     }
     else{
         responseText = `There is a ${waitTimeInMinutes} minute wait at ${liftName}. And it's still on Stand-by. That's crazy!`
@@ -406,35 +413,60 @@ function getTextForOpenLiftWait( waitTimeInMinutes, liftName ){
             responseText = `There is currently no line at ${liftName} (or the lift isn't telling me something).`;
     }
     else if ( waitTimeInMinutes == 1 ){
-        responseText = `There's only a 1 minute wait at ${liftName}.`;
+        responseText = `There's only a 1 minute wait at ${liftName}. Awesome!`;
     }
     else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 5 ){
-        responseText = `There is only a ${liftInfo.WaitTimeInMinutes} minute wait at ${liftName}.`
+        responseText = `There is only a ${waitTimeInMinutes} minute wait at ${liftName}.`;
     }
     else if ( waitTimeInMinutes >= 5 && waitTimeInMinutes < 20 ){
-        responseText = `${liftName} currently has a ${liftInfo.WaitTimeInMinutes} minute wait.`
+        responseText = `${liftName} currently has a ${waitTimeInMinutes} minute wait.`;
     }
     else{
-        responseText = `The wait at ${liftName} is ${waitTimeInMinutes} minutes. It is running, just busy!`
+        responseText = `The wait at ${liftName} is ${waitTimeInMinutes} minutes. It is running, just busy!`;
     }
 
     return responseText;
 }
 
-function getWaitTimeTextForCheckLiftStatus( waitTimeInMinutes ){
+function getTextForStandbyLiftCheck( waitTimeInMinutes, liftName ){
     var responseText;
 
     if ( waitTimeInMinutes == 0 ){
-            responseText = `There is currently no wait! Or the lift isn't telling me something.`;
+        responseText = `${liftName} is on Stand-by, but there is currently no line (or the lift isn't telling me something).`;
     }
     else if ( waitTimeInMinutes == 1 ){
-        responseText = `There's only a 1 minute wait. Awesome`;
+        responseText = `${liftName} is on Stand-by, but there's only a 1 minute wait.`;
     }
-    else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 20 ){
-        responseText = `The wait is currently ${waitTimeInMinutes} minutes.`
+    else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 5 ){
+        responseText = `${liftName} is on Stand-by and has a ${waitTimeInMinutes} minute line.`
+    }
+    else if ( waitTimeInMinutes >= 5 && waitTimeInMinutes < 20 ){
+        responseText = `Boy, ${liftName} is on Stand-by, and it already has a ${waitTimeInMinutes} minute wait.`
     }
     else{
-        responseText = `The wait right now is ${waitTimeInMinutes} minutes. That sucks!`
+        responseText = `${liftName} is on Stand-by and there is a massive ${waitTimeInMinutes} minute wait. Brutal!`
+    }
+
+    return responseText;
+}
+
+function getTextForOpenLiftCheck( waitTimeInMinutes, liftName ){
+    var responseText;
+
+    if ( waitTimeInMinutes == 0 ){
+        responseText = `${liftName} is open and reporting no line. Can't be sure if that's correct.`;
+    }
+    else if ( waitTimeInMinutes == 1 ){
+        responseText = `Yup ${liftName} is open and vacant. There's only a 1 minute wait.`;
+    }
+    else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 5 ){
+        responseText = `${liftName} is open and there's only a ${waitTimeInMinutes} minute wait.`;
+    }
+    else if ( waitTimeInMinutes >= 5 && waitTimeInMinutes < 20 ){
+        responseText = `${liftName} open and currently has a ${waitTimeInMinutes} minute wait.`;
+    }
+    else{
+        responseText = `${liftName} is running but the line is ${waitTimeInMinutes} minutes. Wow!`;
     }
 
     return responseText;

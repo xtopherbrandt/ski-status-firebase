@@ -53,10 +53,11 @@ module.exports = class WhistlerPeakScraper {
             const { window } = dom.window;
             const $ = require( 'jquery' )(window);
             var grooming = {};
+
             grooming.searchedName = runName;
 
             grooming.groomedRuns = this.getRunGroomingStatus( $, runName );
-            //grooming.lastUpdated = this.getGroomingLastUpdatedTime( $ );
+
             this.console.log( grooming );
             this.resolve( grooming );
         }
@@ -67,7 +68,7 @@ module.exports = class WhistlerPeakScraper {
 
 
     getRunGroomingStatus( $, requestedRun ){
-        var runs = $(`[data-alert]:contains('${requestedRun}')`);
+        var runs = $(`[data-alert]:contains("${requestedRun}")`);
         
         var foundRuns = [];
         runs.each( function(index) {

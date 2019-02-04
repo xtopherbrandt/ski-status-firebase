@@ -37,4 +37,4 @@ const functions = require('firebase-functions');
 //
 // The version of the function should match the git branch name
 
-exports.fulfillment = functions.https.onRequest(app);
+exports.fulfillment_2019_10 = functions.https.onRequest(app);

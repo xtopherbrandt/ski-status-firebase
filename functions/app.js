@@ -59,7 +59,7 @@ function welcome(conv) {
 
     conv.ask(new SimpleResponse({
         speech: `Good ${dayPartName} from Whistler! How can I help you?`,
-        text: `Good ${dayPartName} from Whistler! How can I help you? V2019_10`,
+        text: `Good ${dayPartName} from Whistler! How can I help you?`,
     }));
     
     conv.ask(new Suggestions(welcomeSuggestions));

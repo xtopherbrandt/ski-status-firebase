@@ -388,7 +388,7 @@ function getTextForStandbyLiftWait( waitTimeInMinutes, liftName ){
     var responseText;
 
     if ( waitTimeInMinutes == 0 ){
-            responseText = `${liftName} is Stand-by, but there is currently no line (or the lift isn't telling me something).`;
+            responseText = `${liftName} is on Stand-by, but there is currently no line (or the lift isn't telling me something).`;
     }
     else if ( waitTimeInMinutes == 1 ){
         responseText = `${liftName} is on Stand-by, but there's only a 1 minute wait.`;
@@ -454,16 +454,16 @@ function getTextForOpenLiftCheck( waitTimeInMinutes, liftName ){
     var responseText;
 
     if ( waitTimeInMinutes == 0 ){
-        responseText = `${liftName} is open and reporting no line. Can't be sure if that's correct.`;
+        responseText = `${liftName} is Open and reporting no line. Can't be sure if that's correct.`;
     }
     else if ( waitTimeInMinutes == 1 ){
-        responseText = `Yup ${liftName} is open and vacant. There's only a 1 minute wait.`;
+        responseText = `Yup ${liftName} is Open and vacant. There's only a 1 minute wait.`;
     }
     else if ( waitTimeInMinutes > 1 && waitTimeInMinutes < 5 ){
-        responseText = `${liftName} is open and there's only a ${waitTimeInMinutes} minute wait.`;
+        responseText = `${liftName} is Open and there's only a ${waitTimeInMinutes} minute wait.`;
     }
     else if ( waitTimeInMinutes >= 5 && waitTimeInMinutes < 20 ){
-        responseText = `${liftName} open and currently has a ${waitTimeInMinutes} minute wait.`;
+        responseText = `${liftName} Open and currently has a ${waitTimeInMinutes} minute wait.`;
     }
     else{
         responseText = `${liftName} is running but the line is ${waitTimeInMinutes} minutes. Wow!`;

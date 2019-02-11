@@ -98,7 +98,7 @@ function getTemperatureSpeechResponse( temperatureCelsius ){
     var speechResponseMessage;
 
     if ( temperatureCelsius ){
-        speechResponseMessage = `It is currently ${temperatureCelsius} degrees Celsius`;
+        speechResponseMessage = `It is ${temperatureCelsius} degrees Celsius`;
     }
     else{
         speechResponseMessage = `The current temperature is not available.`;
@@ -129,14 +129,20 @@ function getWindSpeechResponse( station ){
     var windInfo = station.wind;
 
     if ( windInfo ){
-        directionWords = getDirectionWords( windInfo.direction );
-        windSpeed = windInfo.average;
+        if ( isWind( windInfo ) ){
+            directionWords = getDirectionWords( windInfo.direction );
+            windSpeed = windInfo.average;
+    
+            speechResponseMessage = `The wind is from the ${directionWords} at ${windSpeed} kilometers per hour.`;
+    
+            speechResponseMessage += getGustSpeechResponse( windInfo );
+    
+            speechResponseMessage += getWindChillTemperatureSpeechResponse( station );
+        }
+        else{
+            speechResponseMessage = 'The wind is calm.';
+        }
 
-        speechResponseMessage = `The wind is from the ${directionWords} at ${windSpeed} kilometers per hour.`;
-
-        speechResponseMessage += getGustSpeechResponse( windInfo );
-
-        speechResponseMessage += getWindChillTemperatureSpeechResponse( station );
     }
     else{
         speechResponseMessage = '';
@@ -145,23 +151,32 @@ function getWindSpeechResponse( station ){
     return speechResponseMessage;
 }
 
+function isWind( windInfo ){
+    return windInfo.average > 0;
+}
+
 function getWindTextResponse( station ){
         
     var textResponseMessage;
     var windInfo = station.wind;
 
     if ( windInfo ){
-        textResponseMessage = `**Wind** : ${windInfo.direction} @ ${windInfo.average} km/h`;
+        if ( isWind( windInfo ) ){
+            textResponseMessage = `**Wind** : ${windInfo.direction} @ ${windInfo.average} km/h`;
 
-        var gustText = getGustTextResponse( windInfo );
-
-        if ( gustText.length > 0 ){
-            textResponseMessage += `  \n${gustText}`;
+            var gustText = getGustTextResponse( windInfo );
+    
+            if ( gustText.length > 0 ){
+                textResponseMessage += `  \n${gustText}`;
+            }
+            
+            var windChillText = getWindChillTemperatureTextResponse( station );
+            if ( windChillText.length > 0 ){
+                textResponseMessage += `  \n${windChillText}`;
+            }
         }
-        
-        var windChillText = getWindChillTemperatureTextResponse( station );
-        if ( windChillText.length > 0 ){
-            textResponseMessage += `  \n${windChillText}`;
+        else{
+            textResponseMessage = '**Wind** is calm';
         }
     }
     else{

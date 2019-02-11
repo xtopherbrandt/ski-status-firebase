@@ -155,6 +155,7 @@ module.exports = class WhistlerPeakScraper {
     escapeApostrophes( name ){
         return name.replace( "'", "\\'" );
     }
+
     static normalizeLiftStatus(status){
         switch (status){
             case 'Open':
@@ -166,51 +167,96 @@ module.exports = class WhistlerPeakScraper {
         }
     }
 
-    getGrape( $ ){
-        return $("span.icon-grape" ).next().children("a").text();
+    // Current Weather
+
+    currentWeatherQuery( stationName ){
+
+        var stationUriPart = this.getWesatherStationUriPart( stationName );
+        var getUri = `${this.urlBase}/${stationUriPart}`;
+
+        var jsDompromise = JSDOM.fromURL( getUri );
+
+        jsDompromise.then( dom => this.currentWeatherQueryPromiseFulfilled( dom, stationName ), error => this.queryPromiseError( error ) );
+
+        return new Promise((resolve, reject) => {this.resolve = resolve; this.reject = reject;} );
+
     }
 
-    getRegion( $ ){
-        var regionText = $("span.icon-region" ).next().children("a").text();
-        return this.separateRegion( regionText );
+    currentWeatherQueryPromiseFulfilled( dom, stationName ) { 
+        try{
+            const { window } = dom.window;
+            const $ = require( 'jquery' )(window);
+            var station = {};
+
+            station.name = stationName;
+
+            station.temperature = this.getTemperature( $ );
+            station.wind = this.getWind( $ );
+
+            this.console.log( station );
+            this.resolve( station );
+        }
+        catch( e ){
+            this.reject( e );
+        }
     }
 
-    getVintage( $ ){
-        return $("#top_header" ).children("[itemprop='model']").text();
+
+    getTemperature( $ ){
+        var temperature = $("[data-alert]").first().find('H3').first().html( function(){
+            $('span').remove()
+        }).text();
+            
+        return this.parseTemperatureText( temperature );
     }
 
-    getLabelName( $ ){
-        var labelName
+    parseTemperatureText( temperatureText ){
+        var regex = /(\S*)°C/;
+        var matches = temperatureText.match( regex );
+    
+        if (matches){
+            return matches[1];
+        }
+        else{
+            return null;
+        }
+    }
 
-        labelName = $("#top_header" ).children("[itemprop='name']").text().split(',')[0];
+    getWind( $ ){
+        var windText = $("h6.show-for-small-up.hide-for-medium-up").first().text();
 
-        if ( !labelName ){
-            labelName = $("#top_header" ).text().split(',')[0].trim();
+        return this.parseWindText( windText );
+    }
+
+    parseWindText( windText ){
+
+        var regex = /Ave: ([\d\.]*)km\/h\s*Max: ([\d\.]*)km\/h\s*Dir: (\w{1,3})/;
+        var matches = windText.match( regex );
+
+        var wind;
+
+        if ( matches ){
+            wind = {};
+            wind.average = matches[1];
+            wind.maximum = matches[2];
+            wind.direction = matches[3];
         }
 
-        return labelName;
+        return wind;
     }
 
-    getLabelImageUrl( $ ){
-        return $( "#imgThumb" ).attr("src");
+    getWesatherStationUriPart( stationName ){
+        var stations = {
+            "Whistler Peak" : "weather-station-peak.php",
+            "Hortsman" : "weather-station-peak.php",
+            "Roundhouse" : "weather-station-rhl.php",
+            "Rendezvous" : "weather-station-rendezvous.php",
+            "Pig Alley" : "weather-station-pig.php",
+            "Crystal Ridge" : "weather-station-crystal.php",
+            "Catskinner" : "weather-station-cat.php",
+            "Whistler Village" : "weather-station-village.php"
+        };
+
+        return stations[stationName];
     }
-
-    getCriticScore( $ ){
-        return $("span[itemprop='ratingValue']").text();
-    }
-
-    getStyle( $ ){
-        return $("div.icon-style").next().children("a").text();
-    }
-
-    getFoodPairing( $ ){
-        return $("div.icon-food").next().children("span.sidepanel-text").children("a").text();
-    }
-
-    getAveragePrice( $ ){
-        var priceText = $("span.icon-avgp").next().children("b").text();
-        return priceText.replace(/\s/g,'');
-    }
-
-
 }

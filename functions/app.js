@@ -23,6 +23,7 @@ const functions = require('firebase-functions');
 const { dialogflow, Image, UpdatePermission, SimpleResponse, Suggestions, List } = require('actions-on-google')
 const Scraper = require( './whistlerpeak-scraper.js' );
 const Parser = require( './epicmix-parser.js' );
+const checkWeather = require( './checkWeather.js' );
 const moment = require( 'moment' );
 
 const {google} = require('googleapis');
@@ -42,15 +43,33 @@ app.intent('Default Fallback Intent', fallback );
 
 app.intent('Check Grooming Report', checkGrooming );
 app.intent('Check Grooming Regular Run', checkGrooming );
+app.intent('Check Another Run', checkGrooming );
+app.intent('Check Grooming - yes', checkGrooming );
+app.intent('Check Grooming - no', howElseCanIHelp );
+
 app.intent('Check a Lift', checkLift );
+app.intent('Check Another Lift', checkLift );
+app.intent('Check a Lift - yes', checkLift );
+app.intent('Check a Lift - no', howElseCanIHelp );
+
 app.intent('Check Wait Time', checkWaitTime );
+app.intent('Check Another Wait', checkWaitTime );
+app.intent('Check Wait Time - yes', checkWaitTime );
+app.intent('Check Wait Time - no', howElseCanIHelp );
+
+app.intent('Check Temperature', checkWeather.start );
+app.intent('Check Temperature - yes', checkWeather.start );
+app.intent('Check Another Temperature', checkWeather.start );
+app.intent('Check Temperature - no', howElseCanIHelp );
+
 app.intent('Notify When A Lift Status Changes', notifyOnLiftStatus );
 app.intent('Setup Push Notifications', setupNotification );
 app.intent('Finish Push Setup', finishNotificationSetup );
 
 const welcomeSuggestions = [
     'Run Grooming',
-    'Lift Wait Times'
+    'Lift Wait Times',
+    'Station Temperatures'
 ]
 
 function welcome(conv) {
@@ -59,7 +78,7 @@ function welcome(conv) {
 
     conv.ask(new SimpleResponse({
         speech: `Good ${dayPartName} from Whistler! How can I help you?`,
-        text: `Good ${dayPartName} from Whistler! How can I help you? V2019_10`,
+        text: `Good ${dayPartName} from Whistler! How can I help you? V2019_11`,
     }));
     
     conv.ask(new Suggestions(welcomeSuggestions));
@@ -81,11 +100,22 @@ function getDayPartName(){
 
 function fallback(conv) {
     conv.ask(new SimpleResponse({
-        speech: `Sorry, I didn't catch that. You can ask questions like, 'Is Whiskey Jack groomed?' or 'What's the wait time at Harmony'. Or just say a run or lift name and I'll tell you it's status.`,
-        text: `Sorry, I don't quite understand. You can ask questions like, 'Is Whiskey Jack groomed?' or 'What's the wait time at Harmony'. Or just say a run or lift name and I'll tell you it's status.`,
+        speech: `Sorry, I didn't catch that. You can ask questions like, 'Is Whiskey Jack groomed?', 'What's the wait time at Harmony' or 'What's the temperature at the Roundhouse'.`,
+        text: `Sorry, I don't quite understand. You can ask questions like, 'Is Whiskey Jack groomed?' , 'What's the wait time at Harmony' or 'What's the temperature at the Roundhouse'.`,
     }));
     
     conv.ask(new Suggestions(welcomeSuggestions));
+}
+
+function howElseCanIHelp(conv) {
+
+    conv.ask(new SimpleResponse({
+        speech: `Ok. Is there anyting else I can help with?`,
+        text: `Ok. Is there anyting else I can help with?`,
+    }));
+    
+    conv.ask(new Suggestions(welcomeSuggestions));
+    conv.contexts.set( 'Root', 2 );
 }
 
 function checkGrooming( conv ){
@@ -99,10 +129,7 @@ function checkGrooming( conv ){
             
             exampleRunSuggestions( conv );
 
-            conv.contexts.set( 'CheckGrooming-followup', 5 );
-            conv.contexts.set( 'CheckAGladedRun-followup', 5 );
-            conv.contexts.set( 'CheckGroomingDoubleBlackRun-followup', 5 );
-            conv.contexts.set( 'CheckGroomingNeverGroomedRun-followup', 5 );
+            conv.contexts.set( 'CheckGrooming', 5 );
         }); 
     }
     else{
@@ -197,10 +224,7 @@ function exampleRunSuggestions( conv ){
 
     var runExamples = ['Dave Murray', 'Cruiser', 'Unsanctioned'];
     conv.ask( new Suggestions( runExamples ) );
-    conv.contexts.set( 'CheckGrooming-followup', 5 );
-    conv.contexts.set( 'CheckAGladedRun-followup', 5 );
-    conv.contexts.set( 'CheckGroomingDoubleBlackRun-followup', 5 );
-    conv.contexts.set( 'CheckGroomingNeverGroomedRun-followup', 5 );
+    conv.contexts.set( 'CheckGrooming', 5 );
 }
 
 function checkWaitTime( conv ){
@@ -212,7 +236,7 @@ function checkWaitTime( conv ){
             
             conv.ask( waitTimeResponse( queryLiftName, liftInfo) ); 
             exampleLiftSuggestions( conv );
-            conv.contexts.set( 'CheckWaitTime-followup', 2 );
+            conv.contexts.set( 'CheckWaitTime', 2 );
         }); 
     }
     else {
@@ -222,7 +246,7 @@ function checkWaitTime( conv ){
             text: `Cool. Which Lift?`,
         }));
 
-        conv.contexts.set( 'CheckWaitTime-followup', 2 );
+        conv.contexts.set( 'CheckWaitTime', 2 );
 
         exampleLiftSuggestions( conv );
 /**        
@@ -333,7 +357,7 @@ function checkLift( conv ) {
         }));
 
         exampleLiftSuggestions( conv );
-        conv.contexts.set( 'CheckaLift-followup', 2 );
+        conv.contexts.set( 'CheckLift', 2 );
         return;
     }
 
@@ -377,7 +401,7 @@ function checkLift( conv ) {
         }));
 
         exampleLiftSuggestions( conv );
-        conv.contexts.set( 'CheckaLift-followup', 2 );
+        conv.contexts.set( 'CheckLift', 2 );
     });
     
     return liftInfoPromise;

@@ -48,8 +48,6 @@ function currentWeatherResponse( station ){
     var textResponseMessage;
     var speechResponseMessage;
 
-    console.log( `Station: ${station.name} Temperature: ${station.temperature} Wind: ${station.wind}`);
-
     if ( station ){
         var temperatureCelsius = station.temperature;
         
@@ -258,7 +256,6 @@ function getWindChillTemperature( station ){
     var f3 = 0.3965 * temperature * Math.pow( windSpeed, 0.16 );
     
     var windChillTemperature = 13.12 + f1 - f2 + f3;
-    console.log ( `Wind Chill: T=${temperature} v=${windSpeed} f1=${f1} f2=${f2} f3=${f3} Twc=${windChillTemperature}`);
 
     return Math.round( windChillTemperature );
 }

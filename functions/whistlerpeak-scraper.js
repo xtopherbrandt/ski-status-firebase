@@ -58,7 +58,6 @@ module.exports = class WhistlerPeakScraper {
 
             grooming.groomedRuns = this.getRunGroomingStatus( $, runName );
 
-            this.console.log( grooming );
             this.resolve( grooming );
         }
         catch( e ){
@@ -114,8 +113,6 @@ module.exports = class WhistlerPeakScraper {
             lifts.searchedName = liftName;
 
             lifts = this.getLiftStatus( $, liftName );
-            //lifts.lastUpdated = this.getLiftsLastUpdatedTime( $ );
-            console.log( lifts );
             
             return lifts
         }
@@ -128,9 +125,9 @@ module.exports = class WhistlerPeakScraper {
 
     getLiftStatus( $, requestedLift ){
         var escapedLiftName = this.escapeApostrophes( requestedLift );
-        console.log( escapedLiftName );
+
         var lifts = $(`[data-alert]:contains('${escapedLiftName}')`);
-        console.log( lifts[0] );
+
         var foundLifts = [];
 
         lifts.each( function(index) {
@@ -193,7 +190,6 @@ module.exports = class WhistlerPeakScraper {
             station.temperature = this.getTemperature( $ );
             station.wind = this.getWind( $ );
 
-            this.console.log( station );
             this.resolve( station );
         }
         catch( e ){

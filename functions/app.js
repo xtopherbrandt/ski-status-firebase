@@ -115,7 +115,7 @@ function howElseCanIHelp(conv) {
     }));
     
     conv.ask(new Suggestions(welcomeSuggestions));
-    conv.contexts.set( 'Root', 2 );
+    conv.contexts.set( 'Root', 1 );
 }
 
 function checkGrooming( conv ){
@@ -165,9 +165,6 @@ function groomingResponse( inputRunName, grooming ){
     
     var numberOfRuns = getNumberOfGroomedRuns( grooming );
     var responseMessage;
-
-    console.log( `output Grooming: ${grooming.groomedRuns}`);
-    console.log(`Number of groomed runs: ${numberOfRuns}`);
 
     if ( inputRunName ){
 
@@ -295,10 +292,8 @@ function getLiftInfoPromise( queryLiftName ){
 function waitTimeResponse( queryLiftName, liftInfo ){
     
     var responseMessage;
-    console.log( `input Lift Name: ${queryLiftName}`);
 
     if ( liftInfo ){
-        console.log ( `lift found: ${JSON.stringify( liftInfo.Name )}` );
 
         responseMessage = selectWaitTimeResponse( liftInfo );
     }
@@ -365,12 +360,10 @@ function checkLift( conv ) {
 
     liftInfoPromise.then((liftInfo) => {
         var responseMessage;
-        console.log( `input Lift Name: ${queryLiftName}`);
 
         if ( liftInfo ){
 
             var liftName = liftInfo.Name;
-            console.log ( `lift found: ${ liftName }` );
 
             switch (liftInfo.LiftStatus){
                 case "Closed" : {

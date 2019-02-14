@@ -52,10 +52,10 @@ module.exports = class EpicMixParser {
         var resortLiftInfo;
 
         if ( error ){
-            console.log('error retrieving lift information:', error);
+            console.error('error retrieving lift information:', error);
         }
         else if ( response.statusCode >= 400 ) {
-            console.log('problem retriving lift information. statusCode:', response && response.statusCode); // Print the response status code if a response was received
+            console.error('problem retriving lift information. statusCode:', response && response.statusCode); // Print the response status code if a response was received
         }
         else if ( body ){
             resortLiftInfo = JSON.parse( body );

@@ -30,8 +30,10 @@ module.exports = class WhistlerPeakScraper {
     }
     
     queryPromiseError( error ){
-        this.console.log( "There was an error getting the requested status" );
-        this.console.log( error );
+        this.console.error( "There was an error getting the requested status" );
+        this.console.error( error );
+
+        throw error;
     }
 
     //Grooming
@@ -40,11 +42,9 @@ module.exports = class WhistlerPeakScraper {
 
         var getUri = `${this.urlBase}/block-grooming.php`;
 
-        var jsDompromise = JSDOM.fromURL( getUri);
+        var jsDompromise = JSDOM.fromURL( getUri );
 
-        jsDompromise.then( dom => this.groomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
-
-        return new Promise((resolve, reject) => {this.resolve = resolve; this.reject = reject;} );
+        return jsDompromise.then( dom => this.groomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
 
     }
 
@@ -58,10 +58,12 @@ module.exports = class WhistlerPeakScraper {
 
             grooming.groomedRuns = this.getRunGroomingStatus( $, runName );
 
-            this.resolve( grooming );
+            return grooming;
         }
         catch( e ){
-            this.reject( e );
+ 
+            console.error( `An error occurred in groomingQueryPromiseFulfilled: ${e}`);
+            throw e;
         }
     }
 
@@ -169,14 +171,18 @@ module.exports = class WhistlerPeakScraper {
     currentWeatherQuery( stationName ){
 
         var stationUriPart = this.getWesatherStationUriPart( stationName );
-        var getUri = `${this.urlBase}/${stationUriPart}`;
 
-        var jsDompromise = JSDOM.fromURL( getUri );
+        if ( stationUriPart ){
+        
+            var getUri = `${this.urlBase}/${stationUriPart}`;
 
-        jsDompromise.then( dom => this.currentWeatherQueryPromiseFulfilled( dom, stationName ), error => this.queryPromiseError( error ) );
+            var jsDompromise = JSDOM.fromURL( getUri );
 
-        return new Promise((resolve, reject) => {this.resolve = resolve; this.reject = reject;} );
-
+            return jsDompromise.then( dom => this.currentWeatherQueryPromiseFulfilled( dom, stationName ), error => this.queryPromiseError( error ) );
+        }
+        else{
+            throw new Error( `Station ${stationName} is unknown.` );
+        }
     }
 
     currentWeatherQueryPromiseFulfilled( dom, stationName ) { 
@@ -190,10 +196,12 @@ module.exports = class WhistlerPeakScraper {
             station.temperature = this.getTemperature( $ );
             station.wind = this.getWind( $ );
 
-            this.resolve( station );
+            return station;
         }
         catch( e ){
-            this.reject( e );
+ 
+            console.error( `An error occurred in currentWeatherQueryPromisFulFilled: ${e}`);
+            throw e;
         }
     }
 

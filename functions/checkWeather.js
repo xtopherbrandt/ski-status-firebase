@@ -26,7 +26,7 @@ const Scraper = require( './whistlerpeak-scraper.js' );
 
 const stationSuggestions = [
     'Whistler Peak',
-    'Mid Mountain',
+    'Roundhouse',
     'Valley'
 ]
 

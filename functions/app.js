@@ -33,7 +33,7 @@ const key = require(PATH_TO_KEY);
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
-const app = dialogflow({debug: true});
+const app = dialogflow({debug: false});
 
 const admin = require('firebase-admin');
 
@@ -74,6 +74,8 @@ const welcomeSuggestions = [
 
 function welcome(conv) {
 
+    console.log( 'Welcome' );
+
     var dayPartName = getDayPartName();
 
     conv.ask(new SimpleResponse({
@@ -99,6 +101,9 @@ function getDayPartName(){
 }
 
 function fallback(conv) {
+    
+    console.log( 'Fallback' );
+
     conv.ask(new SimpleResponse({
         speech: `Sorry, I didn't catch that. You can ask questions like, 'Is Whiskey Jack groomed?', 'What's the wait time at Harmony' or 'What's the temperature at the Roundhouse'.`,
         text: `Sorry, I don't quite understand. You can ask questions like, 'Is Whiskey Jack groomed?' , 'What's the wait time at Harmony' or 'What's the temperature at the Roundhouse'.`,
@@ -108,6 +113,8 @@ function fallback(conv) {
 }
 
 function howElseCanIHelp(conv) {
+
+    console.log( 'How Else Can I Help' );
 
     conv.ask(new SimpleResponse({
         speech: `Ok. Is there anyting else I can help with?`,
@@ -119,6 +126,8 @@ function howElseCanIHelp(conv) {
 }
 
 function checkGrooming( conv ){
+
+    console.log( 'Check Grooming' );
 
     var inputRunName = getInputRunName( conv );
 
@@ -191,7 +200,7 @@ function selectGroomingResponse( inputRunName, grooming ){
 
     switch (numberOfRuns) {
         case 0 :{
-            responseMessage = `No ${inputRunName} is not groomed today. Would you like to check another?`;
+            responseMessage = `No, ${inputRunName} is not groomed today. Would you like to check another?`;
             break;
         }
         case 1 : {
@@ -225,6 +234,8 @@ function exampleRunSuggestions( conv ){
 }
 
 function checkWaitTime( conv ){
+
+    console.log( 'Check Wait Time' );
 
     var queryLiftName = conv.parameters.liftName;
 
@@ -340,6 +351,8 @@ function selectWaitTimeResponse( liftInfo ){
 }
 
 function checkLift( conv ) {
+
+    console.log( 'Check Lift' );
 
     var parser = new Parser( console );
     var queryLiftName = conv.parameters.liftName;
@@ -577,5 +590,10 @@ function sendNotifcation( userId, intent ){
         });
     });
 }
+
+app.catch( (conv, e) => {
+    console.error( `An unhandled exception was caught:\n ${e}` );
+    conv.close( 'Oops. Something went really sideways. Kind of like I was riding fakey and caught an edge. Give me a minute to get myself back up, then try again.' );
+  });
 
 module.exports = app;

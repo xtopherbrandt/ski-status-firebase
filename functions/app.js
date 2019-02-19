@@ -138,7 +138,6 @@ function checkGrooming( conv ){
             
             exampleRunSuggestions( conv );
 
-            conv.contexts.set( 'CheckGrooming', 5 );
         }); 
     }
     else{
@@ -230,7 +229,7 @@ function exampleRunSuggestions( conv ){
 
     var runExamples = ['Dave Murray', 'Cruiser', 'Unsanctioned'];
     conv.ask( new Suggestions( runExamples ) );
-    conv.contexts.set( 'CheckGrooming', 5 );
+    conv.contexts.set( 'CheckGrooming', 3 );
 }
 
 function checkWaitTime( conv ){
@@ -244,7 +243,7 @@ function checkWaitTime( conv ){
             
             conv.ask( waitTimeResponse( queryLiftName, liftInfo) ); 
             exampleLiftSuggestions( conv );
-            conv.contexts.set( 'CheckWaitTime', 2 );
+            conv.contexts.set( 'CheckWaitTime', 3 );
         }); 
     }
     else {
@@ -254,7 +253,7 @@ function checkWaitTime( conv ){
             text: `Cool. Which Lift?`,
         }));
 
-        conv.contexts.set( 'CheckWaitTime', 2 );
+        conv.contexts.set( 'CheckWaitTime', 3 );
 
         exampleLiftSuggestions( conv );
 /**        
@@ -365,7 +364,7 @@ function checkLift( conv ) {
         }));
 
         exampleLiftSuggestions( conv );
-        conv.contexts.set( 'CheckLift', 2 );
+        conv.contexts.set( 'CheckLift', 3 );
         return;
     }
 
@@ -407,7 +406,7 @@ function checkLift( conv ) {
         }));
 
         exampleLiftSuggestions( conv );
-        conv.contexts.set( 'CheckLift', 2 );
+        conv.contexts.set( 'CheckLift', 3 );
     });
     
     return liftInfoPromise;
@@ -492,7 +491,7 @@ function getTextForOpenLiftCheck( waitTimeInMinutes, liftName ){
         responseText = `${liftName} is Open and there's only a ${waitTimeInMinutes} minute wait.`;
     }
     else if ( waitTimeInMinutes >= 5 && waitTimeInMinutes < 20 ){
-        responseText = `${liftName} Open and currently has a ${waitTimeInMinutes} minute wait.`;
+        responseText = `${liftName} is Open and currently has a ${waitTimeInMinutes} minute wait.`;
     }
     else{
         responseText = `${liftName} is running but the line is ${waitTimeInMinutes} minutes. Wow!`;

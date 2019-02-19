@@ -305,7 +305,7 @@ exports.start = function checkCurrentWeather( conv ){
         }));
  
         conv.ask(new Suggestions(stationSuggestions));
-        conv.contexts.set( 'CheckTemperature', 5 );
+        conv.contexts.set( 'CheckTemperature', 2 );
     }
 
 }

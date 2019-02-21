@@ -20,7 +20,7 @@ Contact Info: xtopher.brandt at gmail
 'use strict';
  
 const functions = require('firebase-functions');
-const { dialogflow, Image, UpdatePermission, SimpleResponse, Suggestions, List } = require('actions-on-google')
+const { dialogflow, Image, UpdatePermission, SimpleResponse, Suggestions, BasicCard, Button } = require('actions-on-google')
 const Scraper = require( './whistlerpeak-scraper.js' );
 const Parser = require( './epicmix-parser.js' );
 const checkWeather = require( './checkWeather.js' );
@@ -40,6 +40,9 @@ const admin = require('firebase-admin');
 
 app.intent('Default Welcome Intent', welcome );
 app.intent('Default Fallback Intent', fallback );
+
+app.intent('What Can You Do', help );
+app.intent('Who was Dave Murray', daveMurray );
 
 app.intent('Check Grooming Report', checkGrooming );
 app.intent('Check Grooming Regular Run', checkGrooming );
@@ -61,6 +64,7 @@ app.intent('Check Temperature', checkWeather.start );
 app.intent('Check Temperature - yes', checkWeather.start );
 app.intent('Check Another Temperature', checkWeather.start );
 app.intent('Check Temperature - no', howElseCanIHelp );
+app.intent('Check Temperature Somewhere Else', checkWeather.unknownPlace )
 
 app.intent('Notify When A Lift Status Changes', notifyOnLiftStatus );
 app.intent('Setup Push Notifications', setupNotification );
@@ -80,7 +84,7 @@ function welcome(conv) {
 
     conv.ask(new SimpleResponse({
         speech: `Good ${dayPartName} from Whistler! How can I help you?`,
-        text: `Good ${dayPartName} from Whistler! How can I help you? V2019_15`,
+        text: `Good ${dayPartName} from Whistler! How can I help you? V2019_15`
     }));
     
     conv.ask(new Suggestions(welcomeSuggestions));
@@ -106,10 +110,59 @@ function fallback(conv) {
 
     conv.ask(new SimpleResponse({
         speech: `Sorry, I didn't catch that. You can ask questions like, 'Is Whiskey Jack groomed?', 'What's the wait time at Harmony' or 'What's the temperature at the Roundhouse'.`,
-        text: `Sorry, I don't quite understand. You can ask questions like, 'Is Whiskey Jack groomed?' , 'What's the wait time at Harmony' or 'What's the temperature at the Roundhouse'.`,
+        text: `Here's a little help...`
+    }));
+        
+    conv.ask( new BasicCard({
+        title: `Whistler Status`,
+        subtitle: `Assistant Help`,
+        text: `I can tell about the status of runs, lifts and the weather at the Whistler Blackcomb ski resort. You can ask questions like:  \n *Is Bear Paw groomed?*  \n *What's the wait time at Glacier Express*  \n *What's the temperature at the Blackcomb Peak*`
+    }))
+
+    conv.ask(new Suggestions(welcomeSuggestions));
+    conv.contexts.set( 'Root', 1 );
+}
+
+function help(conv) {
+    
+    console.log( 'Help' );
+
+    conv.ask(new SimpleResponse({
+        speech: `I can tell you about the status of runs, lifts and the weather at the Whistler Blackcomb ski resort. You can ask questions like, 'Is Whiskey Jack groomed?', 'What's the wait time at Harmony' or 'What's the temperature at the Roundhouse'. What would you like to do?`,
+        text: `Here's a little help...`
     }));
     
+    conv.ask( new BasicCard({
+        title: `Whistler Status`,
+        subtitle: `Assistant Help`,
+        text: `I can tell about the status of runs, lifts and the weather at the Whistler Blackcomb ski resort. You can ask questions like:  \n *Is Bear Paw groomed?*  \n *What's the wait time at Glacier Express*  \n *What's the temperature at the Blackcomb Peak*`
+    }))
+
     conv.ask(new Suggestions(welcomeSuggestions));
+    conv.contexts.set( 'Root', 1 );
+}
+
+function daveMurray(conv) {
+    
+    console.log( 'Dave Murray' );
+
+    conv.ask(new SimpleResponse({
+        speech: `Dave Murray was an alpine ski racer. He was noted for being a member of the Crazy Canucks, the Canadian downhill racers of the late 1970s and early 1980s known for their fearless racing style. His teammates in the group were Ken Read, Dave Irwin, and Steve Podborski. He has been memorialized at Whistler, with his name on one of the best downhill ski runs around.`,
+        text: `Here's a what I know...`,
+    }));
+    
+    conv.ask( new BasicCard({
+        title: `Whistler Status`,
+        subtitle: `Dave Murray`,
+        text: `Dave Murray was an alpine ski racer. He was noted for being a member of the Crazy Canucks, the Canadian downhill racers of the late 1970s and early 1980s known for their fearless racing style. His teammates in the group were Ken Read, Dave Irwin, and Steve Podborski. He has been memorialized at Whistler, with his name on one of the best downhill ski runs around.`,
+        buttons: new Button({
+            title: `Canadian Ski Museum`,
+            url: `http://www.skimuseum.ca/biodata.php?lang=en&id=102`
+        })
+    }))
+
+    conv.ask(new Suggestions(welcomeSuggestions));
+    conv.contexts.set( 'Root', 1 );
 }
 
 function howElseCanIHelp(conv) {

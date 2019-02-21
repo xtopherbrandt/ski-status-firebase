@@ -20,7 +20,7 @@ Contact Info: xtopher.brandt at gmail
 'use strict';
  
 const functions = require('firebase-functions');
-const { dialogflow, Image, UpdatePermission, SimpleResponse, Suggestions, List, BasicCard } = require('actions-on-google')
+const { dialogflow, Image, UpdatePermission, SimpleResponse, Suggestions, List, BasicCard, Table } = require('actions-on-google')
 const Scraper = require( './whistlerpeak-scraper.js' );
 
 
@@ -301,11 +301,37 @@ exports.start = function checkCurrentWeather( conv ){
         
         conv.ask(new SimpleResponse({
             speech: `Alright. Which station?`,
-            text: `Alright. Which station?`,
+            text: `Alright. Which station?`
         }));
  
         conv.ask(new Suggestions(stationSuggestions));
         conv.contexts.set( 'CheckTemperature', 3 );
     }
 
+}
+
+exports.unknownPlace = function checkWeatherSomewhereElse( conv ){
+            
+    conv.ask(new SimpleResponse({
+        speech: `You must have me confused with another weather assistant. I can tell you the temperature at various locations around the Whistler Blackcomb ski resort. Would you like to continue with me, or leave and ask Google to find a different assistant?`,
+        text: `Here are the stations I can tell you about...`
+    }));
+
+    conv.ask( new Table ({
+        dividers: false,
+        columns: ['Stations'],
+        rows: [
+            ['Whistler Peak'],
+            ['Horstman'],
+            ['Roundhouse'],
+            ['Rendezvous'],
+            ['Pig Alley'],
+            ['Crystal Ridge'],
+            ['Catskinner'],
+            ['Whistler Village']
+        ]
+    }))
+
+    conv.contexts.set( 'SomewhereElse', 2 );
+    conv.contexts.set( 'CheckTemperature', 3 );
 }

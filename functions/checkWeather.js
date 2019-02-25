@@ -313,7 +313,7 @@ exports.start = function checkCurrentWeather( conv ){
 exports.unknownPlace = function checkWeatherSomewhereElse( conv ){
             
     conv.ask(new SimpleResponse({
-        speech: `You must have me confused with another weather assistant. I can tell you the temperature at various locations around the Whistler Blackcomb ski resort. Would you like to continue with me, or leave and ask Google to find a different assistant?`,
+        speech: `You must have me confused with another weather assistant. I can tell you the temperature at various locations around the Whistler Blackcomb ski resort. Would you like to continue with me?`,
         text: `Here are the stations I can tell you about...`
     }));
 

@@ -70,6 +70,8 @@ app.intent('Notify When A Lift Status Changes', notifyOnLiftStatus );
 app.intent('Setup Push Notifications', setupNotification );
 app.intent('Finish Push Setup', finishNotificationSetup );
 
+app.intent('Collect Grooming Report', collectGroomingReport );
+
 const welcomeSuggestions = [
     'Grooming',
     'Wait Times',
@@ -84,7 +86,7 @@ function welcome(conv) {
 
     conv.ask(new SimpleResponse({
         speech: `Good ${dayPartName} from Whistler! How can I help you?`,
-        text: `Good ${dayPartName} from Whistler! How can I help you? V2019.16`
+        text: `Good ${dayPartName} from Whistler! How can I help you?`
     }));
     
     conv.ask(new Suggestions(welcomeSuggestions));
@@ -147,7 +149,7 @@ function daveMurray(conv) {
     console.log( 'Dave Murray' );
 
     conv.ask(new SimpleResponse({
-        speech: `Dave Murray was an alpine ski racer. He was noted for being a member of the Crazy Canucks, the Canadian downhill racers of the late 1970s and early 1980s known for their fearless racing style. His teammates in the group were Ken Read, Dave Irwin, and Steve Podborski. He has been memorialized at Whistler, with his name on one of the best downhill ski runs around.`,
+        speech: `Dave Murray was an alpine ski racer. He was noted for being a member of the Crazy Canucks, the Canadian downhill racers of the late 1970s and early 1980s known for their fearless racing style. His teammates in the group were Ken Read, Dave Irwin, and Steve Podborski. He has been memorialized at Whistler, with his name on one of the best downhill ski runs around. How else can I help?`,
         text: `Here's a what I know...`,
     }));
     
@@ -176,6 +178,25 @@ function howElseCanIHelp(conv) {
     
     conv.ask(new Suggestions(welcomeSuggestions));
     conv.contexts.set( 'Root', 1 );
+}
+
+function collectGroomingReport( conv ){
+
+    console.log( 'Collect Grooming' );
+
+    return collectGroomingReportPromise().then( () => {
+        console.log( 'Collected' );
+        conv.close();
+    })
+}
+
+function collectGroomingReportPromise( ) {
+
+    var scraper = new Scraper( console );
+    
+    var groomingPromise = scraper.collectGroomingReport( );
+
+    return groomingPromise;
 }
 
 function checkGrooming( conv ){
@@ -209,7 +230,7 @@ function getGroomingPromise( queryRunName ) {
 
     var scraper = new Scraper( console );
     
-    var groomingPromise = scraper.groomingQuery( queryRunName );
+    var groomingPromise = scraper.runGroomingQuery( queryRunName );
 
     return groomingPromise;
 }

@@ -22,6 +22,29 @@ Contact Info: xtopher.brandt at gmail
 
 const jsdom = require( 'jsdom' );
 const { JSDOM } = jsdom;
+const admin = require('firebase-admin');
+const functions = require('firebase-functions');
+const moment = require( 'moment' );
+
+admin.initializeApp(functions.config().firebase);
+
+var db = admin.firestore();
+
+/**
+ * This code is required to ensure that timestamps stored in Cloud Firestore will be read back as
+Firebase Timestamp objects instead of as system Date objects. So you will also
+need to update code expecting a Date to instead expect a Timestamp. For example:
+
+  // Old:
+  const date = snapshot.get('created_at');
+  // New:
+  const timestamp = snapshot.get('created_at');
+  const date = timestamp.toDate();
+ */
+const Firestore = require('@google-cloud/firestore');
+const firestore = new Firestore();
+const settings = {timestampsInSnapshots: true};
+firestore.settings(settings);
 
 module.exports = class WhistlerPeakScraper {
     constructor ( console ){
@@ -38,17 +61,17 @@ module.exports = class WhistlerPeakScraper {
 
     //Grooming
 
-    groomingQuery( runName ){
+    runGroomingQuery( runName ){
 
         var getUri = `${this.urlBase}/block-grooming.php`;
 
         var jsDompromise = JSDOM.fromURL( getUri );
 
-        return jsDompromise.then( dom => this.groomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
+        return jsDompromise.then( dom => this.runGroomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
 
     }
 
-    groomingQueryPromiseFulfilled( dom, runName ) { 
+    runGroomingQueryPromiseFulfilled( dom, runName ) { 
         try{
             const { window } = dom.window;
             const $ = require( 'jquery' )(window);
@@ -77,6 +100,60 @@ module.exports = class WhistlerPeakScraper {
         })
             
         return foundRuns;
+    }
+    
+    collectGroomingReport( ){
+
+        var getUri = `${this.urlBase}/block-grooming.php`;
+
+        var jsDomPromise = JSDOM.fromURL( getUri );
+
+        return jsDomPromise.then( dom => this.groomingReportQueryPromiseFulfilled( dom ), error => this.queryPromiseError( error ) )
+                            .then( grooming => this.saveGroomingReport( grooming ), error => this.queryPromiseError( error ) );
+
+    }
+    
+    groomingReportQueryPromiseFulfilled( dom ) { 
+        try{
+            const { window } = dom.window;
+            const $ = require( 'jquery' )(window);
+            var grooming = {};
+
+            grooming.groomedRuns = this.getGroomingReport( $ );
+
+            return grooming;
+        }
+        catch( e ){
+ 
+            console.error( `An error occurred in groomingReportQueryPromiseFulfilled: ${e}`);
+            throw e;
+        }
+    }
+
+    getGroomingReport( $ ){
+        var runs = $(`[data-alert]`);
+        
+        var foundRuns = [];
+        runs.each( function(index) {
+            foundRuns.push( $(this).text() );
+        })
+            
+        return foundRuns;
+    }
+
+    saveGroomingReport( grooming ){
+        try{
+            var dateKey = moment().toJSON();
+            var groomingDocRef = db.collection( 'grooming' ).doc( dateKey );
+    
+            groomingDocRef.set( grooming );
+        }
+        catch( e ){
+             
+            console.error( `An error occurred in saveGroomingReport: ${e}`);
+            throw e;
+        }
+ 
     }
 
     //Lifts

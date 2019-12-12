@@ -6,7 +6,7 @@
   "license": "GPL-3.0-or-later",
   "author": "Christopher Brandt",
   "engines": {
-    "node": "13"
+    "node": "10"
   },
   "scripts": {
     "start": "firebase serve --only functions:fulfillment",

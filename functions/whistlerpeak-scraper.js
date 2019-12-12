@@ -92,7 +92,7 @@ module.exports = class WhistlerPeakScraper {
 
 
     getRunGroomingStatus( $, requestedRun ){
-        var runs = $(`[data-alert]:contains("${requestedRun}")`);
+        var runs = $(`.alert-box:contains("${requestedRun}")`);
         
         var foundRuns = [];
         runs.each( function(index) {
@@ -131,7 +131,7 @@ module.exports = class WhistlerPeakScraper {
     }
 
     getGroomingReport( $ ){
-        var runs = $(`[data-alert]`);
+        var runs = $(`.alert-box`);
         
         var foundRuns = [];
         runs.each( function(index) {
@@ -205,7 +205,7 @@ module.exports = class WhistlerPeakScraper {
     getLiftStatus( $, requestedLift ){
         var escapedLiftName = this.escapeApostrophes( requestedLift );
 
-        var lifts = $(`[data-alert]:contains('${escapedLiftName}')`);
+        var lifts = $(`.alert-box:contains('${escapedLiftName}')`);
 
         var foundLifts = [];
 
@@ -284,7 +284,7 @@ module.exports = class WhistlerPeakScraper {
 
 
     getTemperature( $ ){
-        var temperature = $("[data-alert]").first().find('H3').first().html( function(){
+        var temperature = $(".alert-box").first().find('H3').first().html( function(){
             $('span').remove()
         }).text();
             

@@ -20,6 +20,7 @@ Contact Info: xtopher.brandt at gmail
 'use strict';
 
 const app = require( './app.js' );
+const lift_wait_ingest = require( './lift-wait-ingest.js' );
 const functions = require('firebase-functions');
 
 // When a version of the action is submitted for Beta or Production, 
@@ -38,3 +39,5 @@ const functions = require('firebase-functions');
 // The version of the function should match the git branch name
 
 exports.fulfillment_2019_17 = functions.https.onRequest(app);
+
+exports.lift_wait_ingest_2019_1 = functions.pubsub.schedule('every 5 minutes').onRun( lift_wait_ingest );

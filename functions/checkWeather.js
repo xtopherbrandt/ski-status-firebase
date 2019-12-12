@@ -285,8 +285,12 @@ function getDirectionWords( directionAbbreviation ){
 
 exports.start = function checkCurrentWeather( conv ){
 
+    console.log( 'Check Weather' );
+
     var stationName = getInputStationName( conv );
 
+    console.log( stationName );
+    
     if ( stationName ){
         return getCurrentWeatherPromise( stationName ).then( (station) => {
             

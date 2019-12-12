@@ -206,6 +206,9 @@ function checkGrooming( conv ){
     var inputRunName = getInputRunName( conv );
 
     if ( inputRunName ){
+
+        console.log( inputRunName );
+
         return getGroomingPromise( inputRunName ).then( (grooming) => {
             
             conv.ask( groomingResponse( inputRunName, grooming) ); 
@@ -313,6 +316,9 @@ function checkWaitTime( conv ){
     var queryLiftName = conv.parameters.liftName;
 
     if ( queryLiftName ){
+
+        console.log( queryLiftName );
+
         return getLiftInfoPromise( queryLiftName ).then( (liftInfo) => {
             
             conv.ask( waitTimeResponse( queryLiftName, liftInfo) ); 
@@ -442,6 +448,8 @@ function checkLift( conv ) {
         return;
     }
 
+    console.log( queryLiftName );
+    
     var liftInfoPromise = parser.liftQuery( queryLiftName );
 
     liftInfoPromise.then((liftInfo) => {

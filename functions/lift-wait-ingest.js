@@ -21,8 +21,7 @@ Contact Info: xtopher.brandt at gmail
  
 const functions = require('firebase-functions');
 
-exports = function( context ){
-    console.log('This will be run every 5 minutes!');
-    console.log( context );
+module.exports = function( context ){
+    console.log('Lift Wait Ingester');
     return null;
 }

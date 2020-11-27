@@ -37,7 +37,7 @@ module.exports = class Lifts {
             "Peak Express",
             "Harmony 6 Express",
             "Symphony Express",
-            "T-Bars","T-bars","T bar",
+            "T-Bars",
             "Blackcomb Gondola Lower",
             "Blackcomb Gondola Upper",
             "Excalibur Gondola Lower",

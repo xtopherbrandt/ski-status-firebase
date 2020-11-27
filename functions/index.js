@@ -41,3 +41,4 @@ const functions = require('firebase-functions');
 exports.fulfillment_2019_20 = functions.https.onRequest(app);
 
 exports.lift_wait_ingest_2019_20 = functions.pubsub.schedule('every 5 minutes').onRun( lift_wait_ingest );
+exports.lift_wait_intest_test = functions.https.onRequest( lift_wait_ingest );

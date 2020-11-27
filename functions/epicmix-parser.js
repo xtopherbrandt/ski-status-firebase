@@ -30,8 +30,29 @@ module.exports = class EpicMixParser {
 
     liftQuery( liftName ){
         return new Promise((resolve, reject) => {
-            this.getLiftStatus( liftName, resolve, reject );
+            this.getLiftInfo( liftName, resolve, reject );
         });
+    }
+
+    getLiftInfo( liftName, resolve, reject ){
+        var requestUrl = `https://xtopherbrandt.builtwithdark.com/liftstatus?liftName=${liftName}`;
+        request( requestUrl, ( error, response, body ) => {
+            
+            var liftInfo;
+
+            if ( error ){
+                console.error('error retrieving lift information:', error);
+            }
+            else if ( response.statusCode >= 400 ) {
+                console.error('problem retriving lift information. statusCode:', response && response.statusCode); // Print the response status code if a response was received
+            }
+            else if ( body ){
+                liftInfo = JSON.parse( body );
+            }
+              
+            resolve( liftInfo );
+
+        } );
     }
 
     getLiftStatus( liftName, resolve, reject ){

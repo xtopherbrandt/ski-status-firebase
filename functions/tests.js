@@ -21,9 +21,9 @@ Contact Info: xtopher.brandt at gmail
 
 const Scraper = require( './whistlerpeak-scraper.js' );
 
-test1();
-test2();
-testClosedLift();
+//test1();
+//test2();
+//testClosedLift();
 
  function test1(){
     var scraper = new Scraper( console );
@@ -33,7 +33,7 @@ testClosedLift();
 
  function test2(){
     var scraper = new Scraper( console );
-    var lifts = scraper.liftQuery( "Creekside Gondola" );
+    var lifts = scraper.liftQuery( "Emerald 6 Express" );
     lifts.then( liftarray => { console.log (liftarray );} );
 
  }

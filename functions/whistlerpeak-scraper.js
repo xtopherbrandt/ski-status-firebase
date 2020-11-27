@@ -161,7 +161,7 @@ module.exports = class WhistlerPeakScraper {
     liftQuery( liftName ){
         var openLiftPromise = this.whistlerBlackcombOpenLifts();
 
-        return openLiftPromise.then( (lifts) => this.getLiftStatus(lifts, this.escapeApostrophes( liftName )), error => this.queryPromiseError( error ) );
+        return openLiftPromise.then( lifts => this.getLiftStatus(lifts, this.escapeApostrophes( liftName )), error => this.queryPromiseError( error ) );
     }
 
     whistlerBlackcombOpenLifts(){
@@ -227,14 +227,14 @@ module.exports = class WhistlerPeakScraper {
 
     getLiftStatus( lifts, liftName ){
         var lift = lifts.filter( currentValue => currentValue.Name == liftName );
-        if ( lift = [] ){
+        if ( lift.length == 0 ){
             lift.push({
                 Name: liftName,
                 WaitTimeInMinutes: 0,
                 LiftStatus: "Closed"
             });
         }
-        return  lift;
+        return  lift[0];
       }
 
     escapeApostrophes( name ){

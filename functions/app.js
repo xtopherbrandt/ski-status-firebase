@@ -374,8 +374,8 @@ function exampleLiftSuggestions( conv ){
 
 function getLiftInfoPromise( queryLiftName ){
 
-    var parser = new Parser( console );
-    return parser.liftQuery( queryLiftName );
+    var scraper = new Scraper( console );
+    return scraper.liftQuery( queryLiftName );
 
 }
 

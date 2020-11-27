@@ -21,6 +21,7 @@ Contact Info: xtopher.brandt at gmail
 
 const app = require( './app.js' );
 const lift_wait_ingest = require( './lift-wait-ingest.js' );
+const unit_tests = require( './tests.js' );
 const functions = require('firebase-functions');
 
 // When a version of the action is submitted for Beta or Production, 
@@ -41,3 +42,5 @@ const functions = require('firebase-functions');
 exports.fulfillment_2019_19 = functions.https.onRequest(app);
 
 exports.lift_wait_ingest_2019_1 = functions.pubsub.schedule('every 5 minutes').onRun( lift_wait_ingest );
+
+exports.unitTests = unit_tests;

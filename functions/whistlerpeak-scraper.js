@@ -159,39 +159,28 @@ module.exports = class WhistlerPeakScraper {
     //Lifts
 
     liftQuery( liftName ){
-        var whistlerQueryPromise = this.whistlerLiftQuery( liftName );
-        var blackcombQueryPromise = this.blackcombLiftQuery( liftName );
+        var openLiftPromise = this.whistlerBlackcombOpenLifts();
 
-        return Promise.all( [whistlerQueryPromise, blackcombQueryPromise] );
+        return openLiftPromise.then( (lifts) => this.getLiftStatus(lifts, this.escapeApostrophes( liftName )), error => this.queryPromiseError( error ) );
     }
 
-    whistlerLiftQuery( liftName ){
+    whistlerBlackcombOpenLifts(){
 
-        var getUri = `${this.urlBase}/block-lift-status-whistler-2019.php`;
+        var getUri = `${this.urlBase}/lifts/block-lifts-grid.php`;
 
-        var jsDompromise = JSDOM.fromURL( getUri);
+        var jsDompromise = JSDOM.fromURL( getUri );
 
-        return jsDompromise.then( dom => this.liftQueryPromiseFulfilled( dom, liftName ), error => this.queryPromiseError( error ) );
-
-    }
-
-    blackcombLiftQuery( liftName ){
-        var getUri = `${this.urlBase}/block-lift-status-blackcomb-2019.php`;
-        
-        var jsDompromise = JSDOM.fromURL( getUri);
-
-        return jsDompromise.then( dom => this.liftQueryPromiseFulfilled( dom, liftName ), error => this.queryPromiseError( error ) );
+        return jsDompromise.then( dom => this.openLiftPromiseFulfilled( dom ), error => this.queryPromiseError( error ) );
 
     }
 
-    liftQueryPromiseFulfilled( dom, liftName ) { 
+    openLiftPromiseFulfilled( dom ){
         try{
             const { window } = dom.window;
             const $ = require( 'jquery' )(window);
             var lifts = {};
-            lifts.searchedName = liftName;
 
-            lifts = this.getLiftStatus( $, liftName );
+            lifts = this.getOpenLifts( $ );
             
             return lifts
         }
@@ -201,46 +190,55 @@ module.exports = class WhistlerPeakScraper {
         }
     }
 
+    getOpenLifts( $ ){
 
-    getLiftStatus( $, requestedLift ){
-        var escapedLiftName = this.escapeApostrophes( requestedLift );
-
-        var lifts = $(`.alert-box:contains('${escapedLiftName}')`);
+        var liftCards = $(`.card-lifts`);
 
         var foundLifts = [];
 
-        lifts.each( function(index) {
-            var text = $(this).text();
+        liftCards.each( function (index, element) {
 
-            var liftName = text.match(/^([\w\s'-]+)(?=Open|Closed|Standby)/g);
-            var liftStatus = text.match(/(Open|Closed|Standby)/);
+            var liftName = $(this).next().children(`.openLift`).text();
+            var liftWait = $(this).next().children(`.waitTime`).text().slice(0,-1);
             
             if ( liftName ){
                 var liftInfo = { 
-                    "name" : liftName[0],
-                    "status" : WhistlerPeakScraper.normalizeLiftStatus( liftStatus[0] ) };
+                    "Name" : liftName,
+                    "WaitTimeInMinutes" : liftWait,
+                    "LiftStatus" : "Open"
+                } 
                     
                 foundLifts.push( liftInfo );
             }
  
-        })
+        } );
             
         return foundLifts;
     }
 
-    escapeApostrophes( name ){
-        return name.replace( "'", "\\'" );
+    getOpenLiftName( $ ){
+        return $(`.openLift`).text();
     }
 
-    static normalizeLiftStatus(status){
-        switch (status){
-            case 'Open':
-                return status;
-            case 'Closed':
-                return status;
-            case 'Standby':
-                return 'on Standby'
+    getOpenLiftWaitTimeInMinutes( $ ){
+        // return the time, slicing off the last character which is expected to be an 'm'
+        return $(`.waitTime`).text().slice(0,-1)
+    }
+
+    getLiftStatus( lifts, liftName ){
+        var lift = lifts.filter( currentValue => currentValue.Name == liftName );
+        if ( lift = [] ){
+            lift.push({
+                Name: liftName,
+                WaitTimeInMinutes: 0,
+                LiftStatus: "Closed"
+            });
         }
+        return  lift;
+      }
+
+    escapeApostrophes( name ){
+        return name.replace( "'", "\\'" );
     }
 
     // Current Weather

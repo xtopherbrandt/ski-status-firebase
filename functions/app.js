@@ -433,7 +433,7 @@ function checkLift( conv ) {
 
     console.log( 'Check Lift' );
 
-    var parser = new Parser( console );
+    var scraper = new Scraper( console );
     var queryLiftName = conv.parameters.liftName;
 
     if ( !queryLiftName ){
@@ -450,7 +450,7 @@ function checkLift( conv ) {
 
     console.log( queryLiftName );
     
-    var liftInfoPromise = parser.liftQuery( queryLiftName );
+    var liftInfoPromise = scraper.liftQuery( queryLiftName );
 
     liftInfoPromise.then((liftInfo) => {
         var responseMessage;

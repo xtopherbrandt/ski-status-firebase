@@ -327,13 +327,14 @@ module.exports = class WhistlerPeakScraper {
     getWesatherStationUriPart( stationName ){
         var stations = {
             "Whistler Peak" : "weather-station-peak.php",
-            "Horstman" : "weather-station-horstman.php",
             "Roundhouse" : "weather-station-rhl.php",
             "Rendezvous" : "weather-station-rendezvous.php",
             "Pig Alley" : "weather-station-pig.php",
             "Crystal Ridge" : "weather-station-crystal.php",
             "Catskinner" : "weather-station-cat.php",
-            "Whistler Village" : "weather-station-village.php"
+            "Whistler Village" : "weather-station-village.php",
+            "Harmony" : "weather-station-harmony.php"
+            "Symphony" : "weather-station-symphony.php"
         };
 
         return stations[stationName];

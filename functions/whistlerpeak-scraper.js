@@ -333,7 +333,7 @@ module.exports = class WhistlerPeakScraper {
             "Crystal Ridge" : "weather-station-crystal.php",
             "Catskinner" : "weather-station-cat.php",
             "Whistler Village" : "weather-station-village.php",
-            "Harmony" : "weather-station-harmony.php"
+            "Harmony" : "weather-station-harmony.php",
             "Symphony" : "weather-station-symphony.php"
         };
 

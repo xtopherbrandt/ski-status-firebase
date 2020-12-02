@@ -73,7 +73,6 @@ app.intent('Finish Push Setup', finishNotificationSetup );
 app.intent('Collect Grooming Report', collectGroomingReport );
 
 const welcomeSuggestions = [
-    'Snow Report',
     'Grooming',
     'Wait Times',
     'Temperatures'

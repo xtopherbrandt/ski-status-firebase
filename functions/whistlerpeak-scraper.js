@@ -338,4 +338,52 @@ module.exports = class WhistlerPeakScraper {
 
         return stations[stationName];
     }
+
+    /// Snow ///
+
+    snowReport(){
+        
+        var getUri = `${this.urlBase}/snow/block-snow-grid.php`;
+
+        var jsDompromise = JSDOM.fromURL( getUri );
+
+        return jsDompromise.then( dom => this.snowReportQueryPromiseFulfilled( dom ), error => this.queryPromiseError( error ) );
+        
+    }
+
+    snowReportQueryPromiseFulfilled( dom ) { 
+        try{
+            const { window } = dom.window;
+            const $ = require( 'jquery' )(window);
+            var report = this.getSnowReport( $ );
+
+            return report;
+        }
+        catch( e ){
+ 
+            console.error( `An error occurred in snowReportQueryPromiseFulfilled: ${e}`);
+            throw e;
+        }
+    }
+
+    getSnowReport ( $ ){
+        var snowContainer = $(`.snow-container`);
+        var newSnowCards = [];
+        var snowAmountPeriods = snowContainer.children(`div`);
+        snowAmountPeriods.each( function (index, element) {
+            var period = $(this).children(`p`).text();
+            if ( $(this).hasClass(`baseReading`) ){
+                var amount = $(this).children(`div.snowAmount`).first().text().trim();
+            }
+            else{
+                var amount = $(this).children(`div`).children(`div.snowAmount`).first().text().trim();
+            }
+            newSnowCards.push( {
+                "period" : period,
+                "amount" : amount
+            } );
+        });
+
+        return newSnowCards;
+    }
 }

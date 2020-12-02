@@ -24,6 +24,7 @@ const Scraper = require( './whistlerpeak-scraper.js' );
 //test1();
 //test2();
 //testClosedLift();
+//testSnowReport();
 
  function test1(){
     var scraper = new Scraper( console );
@@ -43,3 +44,9 @@ const Scraper = require( './whistlerpeak-scraper.js' );
     var lifts = scraper.liftQuery( "Solar Coaster" );
     lifts.then( liftarray => { console.log (liftarray );} );
  }
+ 
+ function testSnowReport(){
+   var scraper = new Scraper( console );
+   var snow = scraper.snowReport( );
+   snow.then( liftarray => { console.log (liftarray );} );
+}

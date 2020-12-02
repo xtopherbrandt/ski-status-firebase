@@ -40,7 +40,7 @@ const functions = require('firebase-functions');
 //
 // The version of the function should match the git branch name
 
-exports.fulfillment_2019_21 = functions.https.onRequest(app);
+exports.fulfillment_2020_1 = functions.https.onRequest(app);
 
 exports.lift_wait_ingest_2019_1 = functions.pubsub.schedule('every 5 minutes').onRun( lift_wait_ingest );
 

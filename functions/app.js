@@ -73,9 +73,11 @@ app.intent('Finish Push Setup', finishNotificationSetup );
 app.intent('Collect Grooming Report', collectGroomingReport );
 
 const welcomeSuggestions = [
+    'Snow Report',
     'Grooming',
     'Wait Times',
     'Temperatures'
+    
 ]
 
 function welcome(conv) {
@@ -118,7 +120,7 @@ function fallback(conv) {
     conv.ask( new BasicCard({
         title: `Whistler Status`,
         subtitle: `Assistant Help`,
-        text: `I can tell about the status of runs, lifts and the weather at the Whistler Blackcomb ski resort. You can ask questions like:  \n *Is Bear Paw groomed?*  \n *What's the wait time at Glacier Express*  \n *What's the temperature at the Blackcomb Peak*`
+        text: `I can tell about the current conditions as well as the status of runs and lifts at the Whistler Blackcomb ski resort. You can ask questions like: \n *What's the snow report*  \n *Is Bear Paw groomed?*  \n *What's the wait time at Glacier Express*  \n *What's the temperature at the Blackcomb Peak*`
     }))
 
     conv.ask(new Suggestions(welcomeSuggestions));

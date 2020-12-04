@@ -25,6 +25,7 @@ const Scraper = require( './whistlerpeak-scraper.js' );
 //test2();
 //testClosedLift();
 //testSnowReport();
+//testWeatherReport();
 
  function test1(){
     var scraper = new Scraper( console );
@@ -49,4 +50,10 @@ const Scraper = require( './whistlerpeak-scraper.js' );
    var scraper = new Scraper( console );
    var snow = scraper.snowReport( );
    snow.then( liftarray => { console.log (liftarray );} );
+}
+
+function testWeatherReport(){
+   var scraper = new Scraper( console );
+   var weather = scraper.weatherReport( );
+   weather.then( weatherArray => { console.log (weatherArray );} );
 }

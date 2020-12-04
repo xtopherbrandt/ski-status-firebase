@@ -37,6 +37,7 @@ app.use(cors({ origin: true }));
 app.get('/', (req, res) => getOverallStatus( req, res ));
 app.get('/lift', (req, res) => getLiftStatus( req, res ));
 app.get('/snow', (req, res) => getSnowReport( req, res ));
+app.get('/weather', (req, res) => getWeatherReport( req, res ));
 
 /// Lift ////
 function getLiftName( req ){
@@ -139,9 +140,40 @@ function getSnowReport( req, res ){
 function startWhistlerPeakSnowReport( ){
     var whistlerPeakScraper = new WhistlerPeakScraper();
    
-    console.log( `Looking up all open lifts` );
+    console.log( `Looking up snow report` );
 
     return whistlerPeakScraper.snowReport();
+
+}
+
+/// Weather ////
+
+function getWeatherReport( req, res ){
+
+    startWhistlerPeakWeatherReport( ).then( weatherReport => {
+        console.log( `   ${stringify(weatherReport)}`);
+        var responseText = ``
+        res.send( weatherReport );
+        return responseText;
+    },reason => {
+        console.log ( `Look up failed` );
+        console.log( reason );
+        var responseText = `Sorry, my lookup failed.`
+        res.send( responseText );
+    }).catch( error => {
+        console.log ( `Look up error` );
+        console.log( error );
+        var responseText = `Sorry, my lookup failed.`
+        res.send( responseText );
+    });
+}
+
+function startWhistlerPeakWeatherReport( ){
+    var whistlerPeakScraper = new WhistlerPeakScraper();
+   
+    console.log( `Looking up weather report` );
+
+    return whistlerPeakScraper.weatherReport();
 
 }
 

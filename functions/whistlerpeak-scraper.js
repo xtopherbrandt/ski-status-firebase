@@ -25,6 +25,17 @@ const { JSDOM } = jsdom;
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 const moment = require( 'moment' );
+const stations = {
+    "Whistler Peak" : "weather-station-peak.php",
+    "Roundhouse" : "weather-station-rhl.php",
+    "Rendezvous" : "weather-station-rendezvous.php",
+    "Pig Alley" : "weather-station-pig.php",
+    "Crystal Ridge" : "weather-station-crystal.php",
+    "Catskinner" : "weather-station-cat.php",
+    "Whistler Village" : "weather-station-village.php",
+    "Harmony" : "weather-station-harmony.php",
+    "Symphony" : "weather-station-symphony.php"
+};
 
 admin.initializeApp(functions.config().firebase);
 
@@ -243,6 +254,37 @@ module.exports = class WhistlerPeakScraper {
 
     // Current Weather
 
+    weatherReport(){
+
+        var reportPromises = [];
+
+        for ( var stationName in stations ) {
+            var stationUriPart = this.getWesatherStationUriPart( stationName );
+
+            if ( stationUriPart ){
+            
+                var getUri = `${this.urlBase}/${stationUriPart}`;
+    
+                // wrap the jsdom promise in another promise so that we can tie the station name to the promise result
+                var jsDompromise = new Promise( (resolve, reject ) => {
+                    var response = {
+                        "domPromise" : JSDOM.fromURL( getUri ),
+                        "stationName" : stationName
+                    }
+                    resolve( response );
+                })
+                
+                var stationReport = jsDompromise.then( response => response.domPromise.then( dom => this.currentWeatherQueryPromiseFulfilled( dom, response.stationName ), error => this.queryPromiseError( error ) )  );
+                reportPromises.push( stationReport );
+            }
+            else{
+                throw new Error( `Station ${stationName} is unknown.` );
+            }
+        };
+
+        return Promise.all( reportPromises );
+    }
+
     currentWeatherQuery( stationName ){
 
         var stationUriPart = this.getWesatherStationUriPart( stationName );
@@ -325,18 +367,7 @@ module.exports = class WhistlerPeakScraper {
     }
 
     getWesatherStationUriPart( stationName ){
-        var stations = {
-            "Whistler Peak" : "weather-station-peak.php",
-            "Roundhouse" : "weather-station-rhl.php",
-            "Rendezvous" : "weather-station-rendezvous.php",
-            "Pig Alley" : "weather-station-pig.php",
-            "Crystal Ridge" : "weather-station-crystal.php",
-            "Catskinner" : "weather-station-cat.php",
-            "Whistler Village" : "weather-station-village.php",
-            "Harmony" : "weather-station-harmony.php",
-            "Symphony" : "weather-station-symphony.php"
-        };
-
+        
         return stations[stationName];
     }
 

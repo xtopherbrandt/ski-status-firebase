@@ -185,15 +185,25 @@ module.exports = class WhistlerPeakScraper {
 
     }
 
+    whistlerBlackcombOpenLifts_TestInput( testFileName ){
+
+        var jsDompromise = JSDOM.fromFile( testFileName );
+        
+        return jsDompromise.then( dom => this.openLiftPromiseFulfilled( dom ), error => this.queryPromiseError( error ) );
+
+    }
+
     openLiftPromiseFulfilled( dom ){
         try{
             const { window } = dom.window;
             const $ = require( 'jquery' )(window);
-            var lifts = {};
+            var openLifts = [];
+            var holdLifts = [];
 
-            lifts = this.getOpenLifts( $ );
-            
-            return lifts
+            openLifts = this.getOpenLifts( $ );
+            holdLifts = this.getOnHoldLifts( $ );
+
+            return openLifts.concat( holdLifts );
         }
         catch( e ){
             
@@ -204,13 +214,13 @@ module.exports = class WhistlerPeakScraper {
     getOpenLifts( $ ){
 
         var liftCards = $(`.openWrapper`);
-
+        
         var foundLifts = [];
 
         liftCards.each( function (index, element) {
-        
-            var liftName = $(this).next().children(`.openLift`).text();
-            var liftWait = $(this).next().children(`.waitTime`).text().slice(0,-1);
+
+            var liftName = $(this).children(`.openLift`).text();
+            var liftWait = $(this).children(`.waitTime`).text().slice(0,-1);
             
             if ( liftName ){
                 var liftInfo = { 
@@ -227,13 +237,30 @@ module.exports = class WhistlerPeakScraper {
         return foundLifts;
     }
 
-    getOpenLiftName( $ ){
-        return $(`.openLift`).text();
-    }
+    getOnHoldLifts( $ ){
 
-    getOpenLiftWaitTimeInMinutes( $ ){
-        // return the time, slicing off the last character which is expected to be an 'm'
-        return $(`.waitTime`).text().slice(0,-1)
+        var liftCards = $(`.holdWrapper`);
+
+        var foundLifts = [];
+
+        liftCards.each( function (index, element) {
+        
+            var liftName = $(this).text();
+            var liftWait = 0
+            
+            if ( liftName ){
+                var liftInfo = { 
+                    "Name" : liftName,
+                    "WaitTimeInMinutes" : liftWait,
+                    "LiftStatus" : "Hold"
+                } 
+                    
+                foundLifts.push( liftInfo );
+            }
+ 
+        } );
+            
+        return foundLifts;
     }
 
     getLiftStatus( lifts, liftName ){

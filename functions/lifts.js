@@ -24,8 +24,8 @@ module.exports = class Lifts {
     constructor(){
 
         this.lifts = [
-            "Whistler Village Gondola Lower",
-            "Whistler Village Gondola Upper",
+            "Village Gondola Lower",
+            "Village Gondola Upper",
             "Fitzsimmons Express",
             "Garbanzo Express",
             "Creekside Gondola",

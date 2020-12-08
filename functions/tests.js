@@ -27,6 +27,8 @@ const Scraper = require( './whistlerpeak-scraper.js' );
 //testSnowReport();
 //testWeatherReport();
 //testFile();
+test_VillageGondolaUpper()
+test_VillageGondolaLower()
 
  function test1(){
     var scraper = new Scraper( console );
@@ -40,6 +42,20 @@ const Scraper = require( './whistlerpeak-scraper.js' );
     lifts.then( liftarray => { console.log (liftarray );} );
 
  }
+
+ function test_VillageGondolaUpper(){
+   var scraper = new Scraper( console );
+   var lifts = scraper.liftQuery( "Village Gondola Upper" );
+   lifts.then( liftarray => { console.log (liftarray );} );
+
+}
+
+function test_VillageGondolaLower(){
+   var scraper = new Scraper( console );
+   var lifts = scraper.liftQuery( "Village Gondola Lower" );
+   lifts.then( liftarray => { console.log (liftarray );} );
+
+}
 
  function testClosedLift(){
     var scraper = new Scraper( console );

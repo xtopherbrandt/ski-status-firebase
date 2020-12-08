@@ -213,15 +213,15 @@ module.exports = class WhistlerPeakScraper {
 
     getOpenLifts( $ ){
 
-        var liftCards = $(`.openWrapper`);
+        var liftCards = $(`.openWrapper, .openWrapperAndWait`);
         
         var foundLifts = [];
-
+        
         liftCards.each( function (index, element) {
 
             var liftName = $(this).children(`.openLift`).text();
             var liftWait = $(this).children(`.waitTime`).text().slice(0,-1);
-            
+
             if ( liftName ){
                 var liftInfo = { 
                     "Name" : liftName,
@@ -239,7 +239,7 @@ module.exports = class WhistlerPeakScraper {
 
     getOnHoldLifts( $ ){
 
-        var liftCards = $(`.holdWrapper`);
+        var liftCards = $(`.holdWrapper, .holdWrapperAndWait`);
 
         var foundLifts = [];
 

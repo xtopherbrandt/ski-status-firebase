@@ -203,12 +203,12 @@ module.exports = class WhistlerPeakScraper {
 
     getOpenLifts( $ ){
 
-        var liftCards = $(`.card-lifts`);
+        var liftCards = $(`.openWrapper`);
 
         var foundLifts = [];
 
         liftCards.each( function (index, element) {
-
+        
             var liftName = $(this).next().children(`.openLift`).text();
             var liftWait = $(this).next().children(`.waitTime`).text().slice(0,-1);
             

@@ -675,7 +675,10 @@ function sendNotifcation( userId, intent ){
 
 app.catch( (conv, e) => {
     console.error( `An unhandled exception was caught:\n ${e}` );
-    conv.close( 'Oops. Something went really sideways. Kind of like I was riding fakey and caught an edge. Give me a minute to get myself back up, then try again.' );
+    var responseMessage = 'Oops. Something went really sideways. Kind of like I was riding fakey and caught an edge. Give me a minute to get myself back up, then try again.' 
+    conv.close( new SimpleResponse({ 
+        speech: responseMessage,
+        text: responseMessage }) );
   });
 
 module.exports = app;

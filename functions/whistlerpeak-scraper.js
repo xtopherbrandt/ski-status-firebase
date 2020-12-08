@@ -59,7 +59,7 @@ firestore.settings(settings);
 
 module.exports = class WhistlerPeakScraper {
     constructor ( console ){
-        this.urlBase = 'http://www.whistlerpeak.com';
+        this.urlBase = 'https://www.whistlerpeak.com';
         this.console = console;
     }
     

@@ -39,8 +39,6 @@ const stations = {
 
 admin.initializeApp(functions.config().firebase);
 
-var db = admin.firestore();
-
 /**
  * This code is required to ensure that timestamps stored in Cloud Firestore will be read back as
 Firebase Timestamp objects instead of as system Date objects. So you will also
@@ -72,25 +70,64 @@ module.exports = class WhistlerPeakScraper {
 
     //Grooming
 
-    runGroomingQuery( runName ){
+    whistlerBlackcombeSpecificRunGroomingQuery( runName ){
+
+        var groomingPromise = this.whistlerBlackcombRunGrooming();
+
+        return groomingPromise.then( dom => this.specificRunGroomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
+
+    }
+
+    whistlerBlackcombSpecificRunGrooming_TestInput( testFileName, runName ){
+
+        var jsDompromise = JSDOM.fromFile( testFileName );
+        
+        return jsDompromise.then( dom => this.specificRunGroomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
+
+    }
+
+    whistlerBlackcombRunGrooming(){
 
         var getUri = `${this.urlBase}/block-grooming.php`;
 
         var jsDompromise = JSDOM.fromURL( getUri );
 
-        return jsDompromise.then( dom => this.runGroomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
+        return jsDompromise.then( dom => this.runGroomingQueryPromiseFulfilled( dom ), error => this.queryPromiseError( error ) );
+    }
+
+    whistlerBlackcombRunGrooming_TestInput( testFileName ){
+
+        var jsDompromise = JSDOM.fromFile( testFileName );
+        
+        return jsDompromise.then( dom => this.runGroomingQueryPromiseFulfilled( dom ), error => this.queryPromiseError( error ) );
 
     }
 
-    runGroomingQueryPromiseFulfilled( dom, runName ) { 
+    specificRunGroomingQueryPromiseFulfilled( dom, runName ) { 
         try{
             const { window } = dom.window;
             const $ = require( 'jquery' )(window);
             var grooming = {};
 
             grooming.searchedName = runName;
-
             grooming.groomedRuns = this.getRunGroomingStatus( $, runName );
+
+            return grooming;
+        }
+        catch( e ){
+ 
+            console.error( `An error occurred in groomingQueryPromiseFulfilled: ${e}`);
+            throw e;
+        }
+    }
+
+    runGroomingQueryPromiseFulfilled( dom ) { 
+        try{
+            const { window } = dom.window;
+            const $ = require( 'jquery' )(window);
+            var grooming = {};
+
+            grooming.groomedRuns = this.getGroomingReport( $ );
 
             return grooming;
         }
@@ -113,17 +150,6 @@ module.exports = class WhistlerPeakScraper {
         return foundRuns;
     }
     
-    collectGroomingReport( ){
-
-        var getUri = `${this.urlBase}/block-grooming.php`;
-
-        var jsDomPromise = JSDOM.fromURL( getUri );
-
-        return jsDomPromise.then( dom => this.groomingReportQueryPromiseFulfilled( dom ), error => this.queryPromiseError( error ) )
-                            .then( grooming => this.saveGroomingReport( grooming ), error => this.queryPromiseError( error ) );
-
-    }
-    
     groomingReportQueryPromiseFulfilled( dom ) { 
         try{
             const { window } = dom.window;
@@ -143,28 +169,13 @@ module.exports = class WhistlerPeakScraper {
 
     getGroomingReport( $ ){
         var runs = $(`.alert-box`);
-        
+
         var foundRuns = [];
         runs.each( function(index) {
             foundRuns.push( $(this).text() );
         })
             
         return foundRuns;
-    }
-
-    saveGroomingReport( grooming ){
-        try{
-            var dateKey = moment().toJSON();
-            var groomingDocRef = db.collection( 'grooming' ).doc( dateKey );
-    
-            groomingDocRef.set( grooming );
-        }
-        catch( e ){
-             
-            console.error( `An error occurred in saveGroomingReport: ${e}`);
-            throw e;
-        }
- 
     }
 
     //Lifts

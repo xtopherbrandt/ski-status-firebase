@@ -42,8 +42,6 @@ const functions = require('firebase-functions');
 
 exports.fulfillment_2020_1 = functions.https.onRequest(app);
 
-exports.lift_wait_ingest_2019_1 = functions.pubsub.schedule('every 5 minutes').onRun( lift_wait_ingest );
-
 exports.unitTests = unit_tests;
 
 exports.ski_scraper = functions.https.onRequest(ski_scraper_app);

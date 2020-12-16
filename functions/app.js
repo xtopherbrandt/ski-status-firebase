@@ -70,8 +70,6 @@ app.intent('Notify When A Lift Status Changes', notifyOnLiftStatus );
 app.intent('Setup Push Notifications', setupNotification );
 app.intent('Finish Push Setup', finishNotificationSetup );
 
-app.intent('Collect Grooming Report', collectGroomingReport );
-
 const welcomeSuggestions = [
     'Grooming',
     'Wait Times',
@@ -234,7 +232,7 @@ function getGroomingPromise( queryRunName ) {
 
     var scraper = new Scraper( console );
     
-    var groomingPromise = scraper.runGroomingQuery( queryRunName );
+    var groomingPromise = scraper.whistlerBlackcombeSpecificRunGroomingQuery( queryRunName );
 
     return groomingPromise;
 }

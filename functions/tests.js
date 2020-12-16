@@ -27,8 +27,10 @@ const Scraper = require( './whistlerpeak-scraper.js' );
 //testSnowReport();
 //testWeatherReport();
 //testFile();
-test_VillageGondolaUpper()
-test_VillageGondolaLower()
+//test_VillageGondolaUpper()
+//test_VillageGondolaLower()
+testGrooming();
+testSpecificRunGrooming();
 
  function test1(){
     var scraper = new Scraper( console );
@@ -75,9 +77,25 @@ function testWeatherReport(){
    weather.then( weatherArray => { console.log (weatherArray );} );
 }
 
-function testFile(){
+function testLifts(){
    var scraper = new Scraper( console );
    var lifts = scraper.whistlerBlackcombOpenLifts_TestInput( '../newLifts.html');
    lifts.then( liftarray => { console.log (liftarray );} );
+
+}
+
+function testGrooming(){
+   
+   var scraper = new Scraper( console );
+   var runs = scraper.whistlerBlackcombRunGrooming_TestInput( '../groomingTest.html');
+   runs.then( runList => { console.log("test All Grooming" ); console.log ( runList );} );
+
+}
+
+function testSpecificRunGrooming(){
+   
+   var scraper = new Scraper( console );
+   var runs = scraper.whistlerBlackcombSpecificRunGrooming_TestInput( '../groomingTest.html', 'Dave Murray');
+   runs.then( runList => { console.log("test Specific Run Grooming" ); console.log ( runList );} );
 
 }

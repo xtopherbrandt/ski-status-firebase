@@ -58,7 +58,7 @@ function getLiftStatus( req, res ){
     }
     else{
         startWhistlerPeakLiftQuery( liftName ).then( liftInfo => {
-            console.log( `   ${stringify(liftInfo)}`);
+            
             var responseText = `${liftInfo.Name} is ${liftInfo.LiftStatus}`
             res.send( liftInfo );
             return responseText;
@@ -89,7 +89,7 @@ function startWhistlerPeakLiftQuery( liftName ){
 function getAllLiftStatus( req, res ){
 
     startWhistlerPeakAllLiftStatus( ).then( liftInfo => {
-        console.log( `   ${stringify(liftInfo)}`);
+        
         var responseText = ``
         res.send( liftInfo );
         return responseText;
@@ -120,7 +120,7 @@ function startWhistlerPeakAllLiftStatus( ){
 function getSnowReport( req, res ){
 
     startWhistlerPeakSnowReport( ).then( snowReport => {
-        console.log( `   ${stringify(snowReport)}`);
+        
         var responseText = ``
         res.send( snowReport );
         return responseText;
@@ -151,7 +151,7 @@ function startWhistlerPeakSnowReport( ){
 function getWeatherReport( req, res ){
 
     startWhistlerPeakWeatherReport( ).then( weatherReport => {
-        console.log( `   ${stringify(weatherReport)}`);
+       
         var responseText = ``
         res.send( weatherReport );
         return responseText;

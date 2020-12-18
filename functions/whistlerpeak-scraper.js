@@ -72,9 +72,11 @@ module.exports = class WhistlerPeakScraper {
 
     whistlerBlackcombeSpecificRunGroomingQuery( runName ){
 
-        var groomingPromise = this.whistlerBlackcombRunGrooming();
+        var getUri = `${this.urlBase}/block-grooming.php`;
 
-        return groomingPromise.then( dom => this.specificRunGroomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
+        var jsDompromise = JSDOM.fromURL( getUri );
+
+        return jsDompromise.then( dom => this.specificRunGroomingQueryPromiseFulfilled( dom, runName ), error => this.queryPromiseError( error ) );
 
     }
 
@@ -86,7 +88,7 @@ module.exports = class WhistlerPeakScraper {
 
     }
 
-    whistlerBlackcombRunGrooming(){
+    whistlerBlackcombGroomingReport(){
 
         var getUri = `${this.urlBase}/block-grooming.php`;
 
@@ -95,7 +97,7 @@ module.exports = class WhistlerPeakScraper {
         return jsDompromise.then( dom => this.runGroomingQueryPromiseFulfilled( dom ), error => this.queryPromiseError( error ) );
     }
 
-    whistlerBlackcombRunGrooming_TestInput( testFileName ){
+    whistlerBlackcombGroomingReport_TestInput( testFileName ){
 
         var jsDompromise = JSDOM.fromFile( testFileName );
         

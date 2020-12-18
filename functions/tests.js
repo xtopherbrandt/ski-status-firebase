@@ -29,8 +29,8 @@ const Scraper = require( './whistlerpeak-scraper.js' );
 //testFile();
 //test_VillageGondolaUpper()
 //test_VillageGondolaLower()
-testGrooming();
-testSpecificRunGrooming();
+//testGrooming();
+//testSpecificRunGrooming();
 
  function test1(){
     var scraper = new Scraper( console );
@@ -87,7 +87,7 @@ function testLifts(){
 function testGrooming(){
    
    var scraper = new Scraper( console );
-   var runs = scraper.whistlerBlackcombRunGrooming_TestInput( '../groomingTest.html');
+   var runs = scraper.whistlerBlackcombGroomingReport_TestInput( '../groomingTest.html');
    runs.then( runList => { console.log("test All Grooming" ); console.log ( runList );} );
 
 }

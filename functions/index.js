@@ -20,7 +20,6 @@ Contact Info: xtopher.brandt at gmail
 'use strict';
 
 const app = require( './app.js' );
-const lift_wait_ingest = require( './lift-wait-ingest.js' );
 const ski_scraper_app = require( './ski-scraper-app');
 const unit_tests = require( './tests.js' );
 const functions = require('firebase-functions');

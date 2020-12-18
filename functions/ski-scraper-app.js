@@ -38,6 +38,7 @@ app.get('/', (req, res) => getOverallStatus( req, res ));
 app.get('/lift', (req, res) => getLiftStatus( req, res ));
 app.get('/snow', (req, res) => getSnowReport( req, res ));
 app.get('/weather', (req, res) => getWeatherReport( req, res ));
+app.get('/grooming', (req, res) => getGroomingStatus( req, res ));
 
 /// Lift ////
 function getLiftName( req ){
@@ -177,5 +178,81 @@ function startWhistlerPeakWeatherReport( ){
 
 }
 
+/// Grooming ////
+
+function getRunName( req ){
+    if ( req.query.runName ){
+        return req.query.runName;
+    }
+    else{
+        return '';
+    }
+}
+
+function getGroomingStatus( req, res ){
+
+    var runName = getRunName( req );
+
+    if (runName == ''){
+        getCompleteGroomingReport( req, res );
+    }
+    else{
+        startWhistlerPeakSpecificRunGroomingReport( runName ).then( runInfo => {
+            
+            var responseText = ``
+            res.send( runInfo );
+            return responseText;
+        },reason => {
+            console.log ( `Look up failed` );
+            console.log( reason );
+            var responseText = `Sorry, I couldn't find any information on a ${runName}`
+            res.send( responseText );
+        }).catch( error => {
+            console.log ( `Look up error` );
+            console.log( error );
+            var responseText = `Sorry, I couldn't find any information on a ${runName}`
+            res.send( responseText );
+        });
+    }
+
+}
+
+function getCompleteGroomingReport( req, res ){
+
+    startWhistlerPeakGroomingReport( ).then( groomingReport => {
+       
+        var responseText = ``
+        res.send( groomingReport );
+        return responseText;
+    },reason => {
+        console.log ( `Look up failed` );
+        console.log( reason );
+        var responseText = `Sorry, my lookup failed.`
+        res.send( responseText );
+    }).catch( error => {
+        console.log ( `Look up error` );
+        console.log( error );
+        var responseText = `Sorry, my lookup failed.`
+        res.send( responseText );
+    });
+}
+
+function startWhistlerPeakGroomingReport( ){
+    var whistlerPeakScraper = new WhistlerPeakScraper();
+   
+    console.log( `Looking up grooming report` );
+
+    return whistlerPeakScraper.whistlerBlackcombGroomingReport();
+
+}
+
+function startWhistlerPeakSpecificRunGroomingReport( runName ){
+    var whistlerPeakScraper = new WhistlerPeakScraper();
+   
+    console.log( `Looking up grooming report` );
+
+    return whistlerPeakScraper.whistlerBlackcombeSpecificRunGroomingQuery( runName );
+
+}
 // Expose Express API as a single Cloud Function:
 module.exports = app;

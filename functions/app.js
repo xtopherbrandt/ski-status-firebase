@@ -231,7 +231,7 @@ function checkGrooming( conv ){
 function getGroomingPromise( queryRunName ) {
 
     var scraper = new Scraper( console );
-    
+
     var groomingPromise = scraper.whistlerBlackcombeSpecificRunGroomingQuery( queryRunName );
 
     return groomingPromise;

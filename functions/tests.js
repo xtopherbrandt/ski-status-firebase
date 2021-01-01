@@ -31,6 +31,7 @@ const Scraper = require( './whistlerpeak-scraper.js' );
 //test_VillageGondolaLower()
 //testGrooming();
 //testSpecificRunGrooming();
+testLifts()
 
  function test1(){
     var scraper = new Scraper( console );
@@ -80,7 +81,15 @@ function testWeatherReport(){
 function testLifts(){
    var scraper = new Scraper( console );
    var lifts = scraper.whistlerBlackcombOpenLifts_TestInput( '../newLifts.html');
-   lifts.then( liftarray => { console.log (liftarray );} );
+  
+   lifts.then( liftarray => {
+      if (liftarray.length != 26)
+      {
+         console.log ( `** Test Failure ** --> found ${liftarray.length} lifts. There are 26 lifts.` );
+      }
+      
+      console.log (liftarray );
+   } );
 
 }
 

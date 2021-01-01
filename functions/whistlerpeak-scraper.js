@@ -212,16 +212,64 @@ module.exports = class WhistlerPeakScraper {
             const $ = require( 'jquery' )(window);
             var openLifts = [];
             var holdLifts = [];
+            var liftCards = [];
 
             openLifts = this.getOpenLifts( $ );
             holdLifts = this.getOnHoldLifts( $ );
+            liftCards = this.getLiftCards( $ );
 
-            return openLifts.concat( holdLifts );
+            return liftCards;
         }
         catch( e ){
             
             throw e;
         }
+    }
+
+    getLiftCards( $ ){
+
+        var liftCards = $(`.lift-container`);
+        
+        var foundLifts = [];
+        var that = this;
+
+        liftCards.each( function (index, element) {
+
+            var liftName = $(this).children(`.liftName`).text();
+            var liftWait = $(this).children(`.liftWait`).text().slice(0,-1);
+            var liftStatus = that.calculateLiftStatus($(this).children(`.active`));
+
+            if ( liftName ){
+                var liftInfo = { 
+                    "Name" : liftName,
+                    "WaitTimeInMinutes" : liftWait,
+                    "LiftStatus" : liftStatus
+                } 
+                
+                var isDuplicateOfLift = that.isDuplicateOfLift( foundLifts, liftName );
+
+                if ( !isDuplicateOfLift ){
+                    foundLifts.push( liftInfo );
+                }
+            }
+ 
+        } );
+            
+        return foundLifts;
+    }
+
+    calculateLiftStatus( activeElement ){
+        if ( activeElement.is(`.liftOpen`) ){
+            return "Open";
+        } else if ( activeElement.is(`.liftHold`) ){
+            return "Hold";
+        } else {
+            return "Closed";
+        }
+    }
+
+    isDuplicateOfLift( liftArray, liftName ){
+        return liftArray.filter( lift => lift.Name.toLowerCase() == liftName.toLowerCase() ).length != 0;
     }
 
     getOpenLifts( $ ){
@@ -252,9 +300,10 @@ module.exports = class WhistlerPeakScraper {
 
     getOnHoldLifts( $ ){
 
-        var liftCards = $(`.holdWrapper, .holdWrapperAndWait`);
+        var liftCards = $(`.liftWrapper > .hold-container > .lift-container > .liftName`);
 
         var foundLifts = [];
+
 
         liftCards.each( function (index, element) {
         

@@ -1,249 +1,465 @@
-<div class='content-container'>
-	<section class='content-item'>
-		<h4>Whistler Mountain</h4>
-		<div class='status'>
-			<div class='status-item' data-value='open'>
-				<p class='openValue'>5</p>
-				<p class='afterValue'>open</p>
-			</div>
-			<div class='status-item' data-value='standby'>
-				<p class='standybValue'>1</p>
-				<p class='afterValue'>hold</p>
-			</div>
-			<div class='status-item' data-value='closed'>
-				<p class='closedValue'>9</p>
-				<p class='afterValue'>closed</span></p>
-			</div>
-		</div>
-		<div class='switches'>
-			<label class='switch'>
-                <input class='openSwitch' type='checkbox' name='status'>
-                <span class='slider openSlider'></span>
-                </label>
 
-			<label class='switch'>
-                <input class='holdSwitch' type='checkbox' name='status'>
-                <span class='slider holdSlider'></span>
-                </label>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whistler Peak</title>
+</head>
+<body>
 
-			<label class='switch'>
-                <input class='closedSwitch' type='checkbox' name='status'>
-                <span class='slider closedSlider'></span>
-                </label>
-		</div>
-
-		<div class='lifts-container'>
-			<!--
-            <div class='holdWrapper active'><span class='holdLift'>Example lift</span></div>
-            <div class='holdWrapper active'><span class='holdLift'>Example lift</span></div>
-            <div class='openWrapper active'><span class='openLift'>Example lift</span><span class='waitTime wait-regular'>8m</span></div>
-            <div class='openWrapper active'><span class='openLift'>Example lift</span><span class='waitTime wait-warm'>18m</span></div>
-            <div class='openWrapper active'><span class='openLift'>Example lift</span><span class='waitTime wait-regular'>8m</span></div>
-            <div class='closedWrapper active'><span class='closedLift'>Example lift</span></div>                        
-            <div class='closedWrapper active'><span class='closedLift'>Example lift</span></div>            
-            <div class='openWrapper active'><span class='openLift'>Example lift</span><span class='waitTime wait-hot'>18m</span></div>
-            -->
-			<div class='holdWrapper'>Garbanzo Express</div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Harmony 6 Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Peak Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Symphony Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'><span class='closedLift'>T-Bar</span><span class='waitTime wait-none'>0m</span>
-			</div>
-			<div class='openWrapper'>
-				<span class='openLift'>Big Red Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='openWrapper'>
-				<span class='openLift'>Emerald 6 Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>PEAK 2 PEAK Gondola</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Franz's Chair</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Garbanzo Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='openWrapper'>
-				<span class='openLift'>Creekside Gondola</span><span class='waitTime wait-none'>2m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Fitzsimmons Express</span><span class='waitTime wait-warm'>14m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Olympic Chair</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='openWrapper'>
-				<span class='openLift'>Village Gondola Lower</span><span class='waitTime wait-hot'>26m</span></div>
-			<div class='openWrapper'>
-				<span class='openLift'>Village Gondola Upper</span><span class='waitTime wait-none'>4m</span></div>
-		</div>
-	</section>
-
-	<div id='lift-cams' class='thumbnail-container end-of-day'>
-		<ul class='thumbnail-list'>
-
-			<li><span><img class='thumbnail-image' src='../wx_img/v1_L.jpg?qrJ5PS4KXI' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/v2_L.jpg?TaIQLymcAD' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/v3_L.jpg?x82QTXOZqk' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/v4_L.jpg?NRlosTA8BZ' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/v5_L.jpg?tkO0bI5zPu' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/c1_L.jpg?kQBmh4LUIq' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/u1_L.jpg?VjQOucmC5D' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/w1_L.jpg?0QZo1YiOz6' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/w2_L.jpg?RoyL5A7hQm' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/p1_L.jpg?xAtODlGjmn' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/p2_L.jpg?QpKigc3WoY' alt='webcam image'></span></li>
-			<li><span><img class='thumbnail-image' src='../wx_img/s1_L.jpg?txZy0XbD8r' alt='webcam image'></span></li>
-		</ul>
-	</div>
-
-	<section class='content-item'>
-		<h4>Blackcomb Mountain</h4>
-		<div class='status'>
-			<div class='status-item' data-value-blackcomb='open'>
-				<p class='openValue'>0</p>
-				<p class='afterValue'>open</p>
-			</div>
-			<div class='status-item' data-value-blackcomb='standby'>
-				<p class='standybValue'>2</p>
-				<p class='afterValue'>hold</p>
-			</div>
-			<div class='status-item' data-value-blackcomb='closed'>
-				<p class='closedValue'>13</p>
-				<p class='afterValue'>closed</span></p>
-			</div>
-		</div>
-		<div class='switches'>
-			<label class='switch'>
-                <input class='openSwitch' type='checkbox' name='status'>
-                <span class='slider openSlider'></span>
-                </label>
-
-			<label class='switch'>
-                <input class='holdSwitch' type='checkbox' name='status'>
-                <span class='slider holdSlider'></span>
-                </label>
-
-			<label class='switch'>
-                <input class='closedSwitch' type='checkbox' name='status'>
-                <span class='slider closedSlider'></span>
-                </label>
-		</div>
+   
+     
 
 
-		<div class='lifts-container'>
 
-			<!--
-            <div class='holdWrapper active'><span class='holdLift'>Example lift</span></div>
-            <div class='holdWrapper active'><span class='holdLift'>Example lift</span></div>
-            <div class='openWrapper active'><span class='openLift'>Example lift</span><span class='waitTime wait-regular'>8m</span></div>
-            <div class='openWrapper active'><span class='openLift'>Example lift</span><span class='waitTime wait-warm'>18m</span></div>
-            <div class='openWrapper active'><span class='openLift'>Example lift</span><span class='waitTime wait-regular'>8m</span></div>
-            <div class='closedWrapper active'><span class='closedLift'>Example lift</span></div>                        
-            <div class='closedWrapper active'><span class='closedLift'>Example lift</span></div>            
-            <div class='openWrapper active'><span class='openLift'>Example lift</span><span class='waitTime wait-hot'>18m</span></div>
-            -->
-			<div class='holdWrapper'>Jersey Cream Express</div>
-			<div class='holdWrapper'>Catskinner Express</div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>7th Heaven Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Glacier Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Showcase T-Bar</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Crystal Ridge Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Jersey Cream Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Catskinner Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Excelerator Express</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Blackcomb Gondola Lower</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Blackcomb Gondola Upper</span><span class='waitTime wait-none'>0m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Excalibur Gondola Lower</span><span class='waitTime wait-regular'>8m</span>
-			</div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Excalibur Gondola Upper</span><span class='waitTime wait-warm'>16m</span></div>
-			<div class='closedWrapper'>
-				<span class='closedLift'>Magic Chair</span><span class='waitTime wait-none'>0m</span></div>
-		</div>
-	</section>
 
+
+
+
+
+<div class='button-container'>
+<div class='left-button active'>Blackcomb</div>
+<div class='right-button notActive'>Whistler</div>
 
 </div>
 
 
+
+<div class="liftWrapper" id="blackcomb">
+
+
+
+    <div id='lift-cams' class='thumbnail-container end-of-day'>
+    <ul class='thumbnail-list'>
+        
+    <li><span><img class='thumbnail-image' src='/wx_img/u1_L.jpg?4yhT6VMU75' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/v1_L.jpg?2F4LTNUha8' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/b6_L.jpg?20K6giuwl3' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/g4_L.jpg?iZV2h49gtw' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/s1_L.jpg?MW4SIsi9Gj' alt='webcam image'></span></li>
+    </ul>
+    </div>            
+    
+
+
+
+    
+            <h4>On hold lifts</h4>
+            <div class='hold-container'>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Blackcomb Gondola Lower</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Blackcomb Gondola Upper</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Excalibur Gondola Lower</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Excalibur Gondola Upper</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Excelerator Express</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Magic Chair</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Jersey Cream Express</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Catskinner Express</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Peak 2 Peak Gondola</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            </div>
+            <h4>Blackcomb Lift Status</h4>
+            
+            <div class='lift-container'>
+                <div class='liftName'>7th Heaven Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Glacier Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Showcase T-Bar</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Crystal Ridge Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Jersey Cream Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Catskinner Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>PEAK 2 PEAK Gondola</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Blackcomb Gondola Upper</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Excelerator Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Excalibur Gondola Upper</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Blackcomb Gondola Lower</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Magic Chair</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Excalibur Gondola Lower</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            </div><div class='liftWrapper' id='whistler'>
+    <div id='lift-cams' class='thumbnail-container end-of-day'>
+    <ul class='thumbnail-list'>
+        
+    <li><span><img class='thumbnail-image' src='/wx_img/c1_L.jpg?ZqsBbWEOMm' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/d1_L.jpg?rtDw20JTiV' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/v2_L.jpg?E5rmH8gbRW' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/v5_L.jpg?croHh74YbT' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/w1_L.jpg?s3XBn8mcQw' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/w2_L.jpg?Qi80lDcuvg' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/p1_L.jpg?Wxw3416Oea' alt='webcam image'></span></li>
+    <li><span><img class='thumbnail-image' src='/wx_img/p2_L.jpg?j1EuNYFAkz' alt='webcam image'></span></li>
+    </ul>
+    </div>            
+    
+                <h4>On hold lifts</h4>
+                <div class='hold-container'>
+                
+            <div class='lift-container'>
+                <div class='liftName'>Whistler Village Gondola Lower</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Whistler Village Gondola Upper</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Fitzsimmons Express</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Creekside Gondola</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Big Red Express</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Emerald 6 Express</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Peak 2 Peak Gondola</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Olympic Chair</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Franz's Chair</div>
+                <div class='liftClosed'></div>
+                <div class='liftHold active'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+                </div>
+                <h4>Whistler Lift Status</h4>
+                
+            <div class='lift-container'>
+                <div class='liftName'>Peak Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Harmony 6 Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Symphony Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>T-Bar</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Big Red Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Emerald 6 Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>PEAK 2 PEAK Gondola</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Franz's Chair</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Garbanzo Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Olympic Chair</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Whistler Village Gondola Upper</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Fitzsimmons Express</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Whistler Village Gondola Lower</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            
+            <div class='lift-container'>
+                <div class='liftName'>Creekside Gondola</div>
+                <div class='liftClosed active'></div>
+                <div class='liftHold'></div>
+                <div class='liftOpen'></div>
+                <div class='liftWait'></div>
+            </div>
+            </div>            
+</div>
 <div id="weather-modal" class="modal">
-	<img class="modal-content">
+    <img class="modal-content">
 </div>
 
-	<script>
-		$(document).ready(function() {
 
-        $(".openSwitch").change(function() {
-            if ($(this).is(":checked")) {
-                $(".openWrapper").show();
-                $(".closedWrapper").hide();
-                $(".holdWrapper").hide();
-                $(".holdSwitch").prop('checked', false);
-                $(".closedSwitch").prop('checked', false);
-            } else {
-                $(".openWrapper").show();
-                $(".closedWrapper").show();
-                $(".holdWrapper").show();
-                // $(".openSwitch").prop('checked', false);
-            }
-        });
+<script>
+    $(document).ready(function() {
+        $("#whistler").hide();
 
-        $(".holdSwitch").change(function() {
-            if ($(this).is(":checked")) {
-                $(".holdWrapper").show();
-                $(".openWrapper").hide();
-                $(".closedWrapper").hide();
-                $(".openSwitch").prop('checked', false);
-                $(".closedSwitch").prop('checked', false);
-            } else {
-                $(".openWrapper").show();
-                $(".closedWrapper").show();
-                $(".holdWrapper").show();
-                // $(".holdSwitch").prop('checked', false);
-            }
-        });
-
-        $(".closedSwitch").change(function() {
-            if ($(this).is(":checked")) {
-                $(".closedWrapper").show();
-                $(".openWrapper").hide();
-                $(".holdWrapper").hide();
-                $(".openSwitch").prop('checked', false);
-                $(".holdSwitch").prop('checked', false);
-            } else {
-                $(".openWrapper").show();
-                $(".closedWrapper").show();
-                $(".holdWrapper").show();
-                // $(".closedSwitch").prop('checked', false);
-            }
+        $('.right-button').click(function(){
+            $("#blackcomb").hide();
+            $("#whistler").show();
+            $(this).removeClass("notActive");
+            $(this).addClass("active");
+            $(".left-button").removeClass('active');
+            $(".left-button").addClass('notActive');
         });
 
 
-        $("[data-value='standby']").click(function() {
-            $(".holdSlider").click();
+        $('.left-button').click(function(){
+            $("#whistler").hide();
+            $("#blackcomb").show();
+            $(this).removeClass("notActive");
+            $(this).addClass("active");
+            $(".right-button").removeClass('active');
+            $(".right-button").addClass('notActive');
         });
-        $("[data-value='closed']").click(function() {
-            $(".closedSlider").click();
-        });
-        $("[data-value='open']").click(function() {
-            $(".openSlider").click();
-        });
-        $("[data-value-blackcomb='standby']").click(function() {
-            $(".holdSlider").click();
-        });
-        $("[data-value-blackcomb='closed']").click(function() {
-            $(".closedSlider").click();
-        });
-        $("[data-value-blackcomb='open']").click(function() {
-            $(".openSlider").click();
-        });
+
 
 
         $(".thumbnail-list img").click(function() {
@@ -254,6 +470,11 @@
         $(".modal-content, #weather-modal").click(function() {
             $("#weather-modal").css("display", "none");
         });
-
     });
-	</script>
+</script>
+
+
+</body>
+</html>
+
+

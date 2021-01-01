@@ -31,7 +31,7 @@ const Scraper = require( './whistlerpeak-scraper.js' );
 //test_VillageGondolaLower()
 //testGrooming();
 //testSpecificRunGrooming();
-testLifts()
+//testLifts()
 
  function test1(){
     var scraper = new Scraper( console );

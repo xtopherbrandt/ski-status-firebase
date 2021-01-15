@@ -58,7 +58,7 @@ firestore.settings(settings);
 module.exports = class WhistlerPeakScraper {
     constructor ( console ){
         this.urlBase = 'https://www.whistlerpeak.com';
-        this.urlBaseLifts = 'https://whistlerlifts.com/';
+        this.urlBaseLifts = 'https://whistlerlifts.com';
         this.console = console;
     }
     
@@ -191,7 +191,7 @@ module.exports = class WhistlerPeakScraper {
 
     whistlerBlackcombOpenLifts(){
 
-        var getUri = `${this.urlBaseLifts}/lifts/block-lifts-grid.php`;
+        var getUri = `${this.urlBaseLifts}/block-lifts-grid.php`;
 
         var jsDompromise = JSDOM.fromURL( getUri );
 
